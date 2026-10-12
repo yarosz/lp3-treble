@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Per-carrier settings the LP3 needs on a GSI. Values match what stock LightOS reports in
+     `dumpsys carrier_config` for the same SIM. -->
+<carrier_config_list>
+    <!-- AT&T and its MVNOs: the GSI's defaults leave VoLTE unavailable, so IMS registers but voice stays off. -->
+    <carrier_config mcc="310" mnc="280">
+        <boolean name="carrier_volte_available_bool" value="true" />
+        <boolean name="editable_enhanced_4g_lte_bool" value="false" />
+        <boolean name="hide_enhanced_4g_lte_bool" value="true" />
+    </carrier_config>
+    <carrier_config mcc="310" mnc="410">
+        <boolean name="carrier_volte_available_bool" value="true" />
+        <boolean name="editable_enhanced_4g_lte_bool" value="false" />
+        <boolean name="hide_enhanced_4g_lte_bool" value="true" />
+    </carrier_config>
+</carrier_config_list>

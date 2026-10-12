@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Static RRO on AOSP CarrierConfig. Its res/xml/vendor.xml is the hook for device carrier settings; stock
+     LightOS overlays it from /system, which a GSI replaces. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.github.yarosz.lp3treble.overlay.carrierconfig">
+    <overlay android:targetPackage="com.android.carrierconfig" android:isStatic="true" android:priority="200" />
+    <application android:hasCode="false" />
+</manifest>
