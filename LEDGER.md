@@ -12,9 +12,13 @@ haven't been scrubbed.
 
 ## Open items
 
+- The IMS static overlays were confirmed on single fresh-install runs on one AT&T-network SIM; confirm over more
+  fresh installs and on other carriers.
+- `patch.sh` refuses to append a `ro.*` key already in the target `build.prop`, citing "init keeps the first
+  value". Init most likely lets a later value win (product props do override vendor ones here); verify on a device
+  and relax or reword the check.
 - More AT&T network codes (Cricket 310/150, FirstNet 313/100) for the CarrierConfig overlay need testers
   with those SIMs.
-- Incoming call after `lp3-atel-ready`: expected unaffected (it only changes SMS buffering); live test pending.
 - `test-patch-gsi.sh` has no seed with an FEC footer (avbtool needs an external `fec` binary that Alpine doesn't
   ship). The real GSI's FEC footer is covered only by the on-device run.
 
@@ -35,7 +39,7 @@ haven't been scrubbed.
   corrections in the kernel log.
 - On the GSI, incoming SMS were lost whenever the screen was off: the Qualcomm RIL holds them until it is told
   the telephony UI is ready, a signal stock firmware sends from a `/system_ext` app. `lp3-atel-ready` sends it
-  (`atel/README.md`).
+  (`atel/README.md`). Incoming VoLTE calls still work with it (answered, call log VoLTE).
 
 - IMS voice came up off on the first boots after a fresh install (calls fell back to circuit-switched and AT&T
   rejected them), once with the Qualcomm IMS app not bound at all. Cause: phh's overlays for the device VoLTE flag
