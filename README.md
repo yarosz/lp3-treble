@@ -90,10 +90,11 @@ numbers, serial numbers, MAC addresses or account emails into an issue or log. A
 
 ## Credits
 
-- **Vandam** for the LP3 bootloader unlock, installer and the
+- [Vandam](https://github.com/vandamd) for the LP3 bootloader unlock, the installer and the
   [light-guide](https://github.com/vandamd/light-guide) GSI tweaks this builds on.
-- **MisterZtr** for the LineageOS GSI.
-- **phh (Pierre-Hugues Husson)** and the TrebleDroid project for the Treble GSI work and IMS patches.
+- [MisterZtr](https://github.com/MisterZtr) for the [LineageOS GSI](https://github.com/MisterZtr/LineageOS_gsi).
+- [phh (Pierre-Hugues Husson)](https://github.com/phhusson) and [TrebleDroid](https://github.com/TrebleDroid)
+  for the Treble GSI work and the IMS patches.
 
 ## License
 
