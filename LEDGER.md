@@ -12,15 +12,14 @@ haven't been scrubbed.
 
 ## Open items
 
-- `patch-gsi.sh` does not yet handle the GSI's AVB hashtree/FEC footer. DSU verifies the image with FEC and
-  silently repairs edited blocks back to stock, so a patched image boots unpatched. Fix before any release:
-  erase the footer, patch, add a fresh hashtree footer.
 - IMS voice capability sometimes comes up off after a boot (calls then fall back to circuit-switched and AT&T
   rejects them), and once the Qualcomm IMS app was not bound. One more reboot fixed it each time. Lead: the
   Treble app's IMS check touches the IMS package about 30 s after every boot.
 - More AT&T network codes (Cricket 310/150, FirstNet 313/100) for the CarrierConfig overlay need testers
   with those SIMs.
 - Incoming call after `lp3-atel-ready`: expected unaffected (it only changes SMS buffering); live test pending.
+- `test-patch-gsi.sh` has no seed with an FEC footer (avbtool needs an external `fec` binary that Alpine doesn't
+  ship). The real GSI's FEC footer is covered only by the on-device run.
 
 ## Findings
 
@@ -33,6 +32,10 @@ haven't been scrubbed.
   never ships it.
 - The MisterZtr LineageOS 23.2 GSI already declares `android.software.credentials`.
 - Its EXT4 image is raw ext4 with almost no free space or inodes, so patching grows it with `resize2fs` first.
+- The image ends in an AVB hashtree footer with FEC (2 roots). DSU sets up dm-verity with FEC from it, so
+  edited blocks were silently corrected back to stock at boot. `patch-gsi.sh` now replaces the footer (no FEC,
+  unsigned); an image built this way booted in DSU on the LP3 with every patched file live and no FEC
+  corrections in the kernel log.
 - On the GSI, incoming SMS were lost whenever the screen was off: the Qualcomm RIL holds them until it is told
   the telephony UI is ready, a signal stock firmware sends from a `/system_ext` app. `lp3-atel-ready` sends it
   (`atel/README.md`).
