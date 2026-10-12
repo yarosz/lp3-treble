@@ -5,9 +5,20 @@ haven't been scrubbed.
 
 ## Now
 
-- Phase: P0 (setup and read-only research). Nothing installable yet.
-- Next: read-only device checks (firmware, DSU viability, IMS packages, credentials feature), then
-  overlay research (TrebleDroid layout, phh IMS settings, light-guide's GSI tweaks).
+- Phase: P0 done (setup and read-only research). Nothing installable yet.
+- Next: capture stock LightOS resources and props; build the offline image-patching script; first overlays.
+
+## Findings
+
+- Test device runs firmware `00WW_1_440000`: Android 14 system on an Android 12 vendor (VNDK 32), virtual
+  A/B, dynamic partitions.
+- DSU is present on stock LightOS: `gsi_tool`, the `gsid` service and the DSU installer app. An unsigned GSI
+  can boot in DSU only after a bootloader unlock. DSU boots the stock kernel.
+- Qualcomm IMS (`org.codeaurora.ims` and friends) lives in `/system_ext`, which a GSI replaces. Calls over
+  VoLTE will need phh's Qualcomm IMS path or a script that copies the APK from your own phone. This repo
+  never ships it.
+- The MisterZtr LineageOS 23.2 GSI already declares `android.software.credentials`.
+- Its EXT4 image is raw ext4 with almost no free space or inodes, so patching grows it with `resize2fs` first.
 
 ## Plan
 
@@ -22,4 +33,4 @@ haven't been scrubbed.
 
 ## Log
 
-- 2026-10-11: Repo created.
+- 2026-10-11: Repo created. P0 read-only checks and research done.
