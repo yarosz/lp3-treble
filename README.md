@@ -49,6 +49,12 @@ scripts/test-patch-gsi.sh                          # self-test on a throwaway 16
 `payload/` mirrors the image root, for example `payload/system/product/overlay/treble-overlay-lp3.apk`.
 `scripts/build-overlays.sh` builds each `overlays/<name>/` into `out/overlays/lp3-treble-<name>.apk` (Android SDK
 build-tools and the android-36 platform needed); copy those into `payload/system/product/overlay/`.
+`props/product.prop` holds the LP3 props (display density, default network mode): use it as
+`payload/build.prop.append` with `BUILD_PROP_PATH=/system/product/etc/build.prop`, because product props load
+after the vendor's and win. The `ims-caf` and `ims-caf-framework` overlays name the Qualcomm IMS app as the
+device's IMS service and mark the device VoLTE-capable from the first boot. phh's equivalents only switch on after
+a boot, through the Treble app, so VoLTE came up only on the second boot after installing the IMS app. Without the
+IMS app installed, nothing binds and calls stay on the normal path.
 `scripts/build-atel.sh` builds `lp3-atel-ready`, the fix for incoming SMS lost while the screen is off
 ([`atel/README.md`](atel/README.md)), and stages it under `out/atel/payload/`: merge that tree into your
 payload and append its `contexts.txt` lines to yours. Before installing a new GSI build, run

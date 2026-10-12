@@ -8,13 +8,10 @@ haven't been scrubbed.
 - Phase: P4 (IMS and carrier configuration), AT&T network first. Nothing to install yet: no release.
 - Done in P3-P4, tested on the LP3 in DSU: keylayouts, density 320, LTE default network mode, CarrierConfig
   overlay (VoLTE for AT&T SIMs), and `lp3-atel-ready` (incoming SMS with the screen off, `atel/README.md`).
-- Next: IMS voice sometimes comes up off after a boot (see Open items); then the full checklist per network.
+- Next: the full checklist per network.
 
 ## Open items
 
-- IMS voice capability sometimes comes up off after a boot (calls then fall back to circuit-switched and AT&T
-  rejects them), and once the Qualcomm IMS app was not bound. One more reboot fixed it each time. Lead: the
-  Treble app's IMS check touches the IMS package about 30 s after every boot.
 - More AT&T network codes (Cricket 310/150, FirstNet 313/100) for the CarrierConfig overlay need testers
   with those SIMs.
 - Incoming call after `lp3-atel-ready`: expected unaffected (it only changes SMS buffering); live test pending.
@@ -39,6 +36,14 @@ haven't been scrubbed.
 - On the GSI, incoming SMS were lost whenever the screen was off: the Qualcomm RIL holds them until it is told
   the telephony UI is ready, a signal stock firmware sends from a `/system_ext` app. `lp3-atel-ready` sends it
   (`atel/README.md`).
+
+- IMS voice came up off on the first boots after a fresh install (calls fell back to circuit-switched and AT&T
+  rejected them), once with the Qualcomm IMS app not bound at all. Cause: phh's overlays for the device VoLTE flag
+  and the IMS service package switch on only after a boot, through the Treble app (one is gated on a prop it writes
+  30 s after boot, the other is enabled at runtime). Across 6 boots in a row of a settled install, voice was on
+  every time. The `ims-caf` and `ims-caf-framework` overlays set both statically: after a fresh install
+  without the IMS app, two boots showed no telephony crashes, and the first boot after installing the IMS app had
+  voice on.
 
 ## Plan
 

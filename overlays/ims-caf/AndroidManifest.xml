@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Static RRO on TeleService: names the Qualcomm IMS app as the device MMTEL ImsService from the first boot.
+     phh's own overlay for this (cafims_telephony) is mutable and enabled by the Treble app only after a boot, so a
+     boot right after installing the IMS app left it unbound. Without the IMS app installed, telephony finds no such
+     service and binds nothing (no crash, tested). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.github.yarosz.lp3treble.overlay.imscaf">
+    <overlay android:targetPackage="com.android.phone" android:isStatic="true" android:priority="200" />
+    <application android:hasCode="false" />
+</manifest>
