@@ -5,8 +5,22 @@ haven't been scrubbed.
 
 ## Now
 
-- Phase: P0 done (setup and read-only research). Nothing installable yet.
-- Next: capture stock LightOS resources and props; build the offline image-patching script; first overlays.
+- Phase: P4 (IMS and carrier configuration), AT&T network first. Nothing to install yet: no release.
+- Done in P3-P4, tested on the LP3 in DSU: keylayouts, density 320, LTE default network mode, CarrierConfig
+  overlay (VoLTE for AT&T SIMs), and `lp3-atel-ready` (incoming SMS with the screen off, `atel/README.md`).
+- Next: IMS voice sometimes comes up off after a boot (see Open items); then the full checklist per network.
+
+## Open items
+
+- `patch-gsi.sh` does not yet handle the GSI's AVB hashtree/FEC footer. DSU verifies the image with FEC and
+  silently repairs edited blocks back to stock, so a patched image boots unpatched. Fix before any release:
+  erase the footer, patch, add a fresh hashtree footer.
+- IMS voice capability sometimes comes up off after a boot (calls then fall back to circuit-switched and AT&T
+  rejects them), and once the Qualcomm IMS app was not bound. One more reboot fixed it each time. Lead: the
+  Treble app's IMS check touches the IMS package about 30 s after every boot.
+- More AT&T network codes (Cricket 310/150, FirstNet 313/100) for the CarrierConfig overlay need testers
+  with those SIMs.
+- Incoming call after `lp3-atel-ready`: expected unaffected (it only changes SMS buffering); live test pending.
 
 ## Findings
 
@@ -19,6 +33,9 @@ haven't been scrubbed.
   never ships it.
 - The MisterZtr LineageOS 23.2 GSI already declares `android.software.credentials`.
 - Its EXT4 image is raw ext4 with almost no free space or inodes, so patching grows it with `resize2fs` first.
+- On the GSI, incoming SMS were lost whenever the screen was off: the Qualcomm RIL holds them until it is told
+  the telephony UI is ready, a signal stock firmware sends from a `/system_ext` app. `lp3-atel-ready` sends it
+  (`atel/README.md`).
 
 ## Plan
 
@@ -35,3 +52,6 @@ haven't been scrubbed.
 
 - 2026-10-11: Repo created. P0 read-only checks and research done.
 - 2026-10-11: Offline image patcher (`patch-gsi.sh`, `pack-dsu.sh`) and self-test added; self-test passes on a synthetic image. Not yet run on the real GSI.
+- 2026-10-12: CarrierConfig overlay (VoLTE on AT&T SIMs): calls both ways and outgoing SMS work in the GSI.
+- 2026-10-12: `lp3-atel-ready` (init service, own SELinux domain): incoming SMS arrive with the screen off and in
+  deep doze, on an enforcing image built from this repo's sources.
