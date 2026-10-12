@@ -12,7 +12,10 @@ usage() {
 Usage: patch-gsi.sh <in system.img> <out system.img> <payload dir>
 
 Copies the input to the output (the input is never modified), grows the copy, injects the
-payload and checks the result with e2fsck. The payload dir mirrors the image root:
+payload and checks the result with e2fsck. If the input ends in an AVB hashtree footer (GSIs do),
+the footer is erased before patching and a fresh one is added after: same partition name, salt,
+rollback index and props, no FEC, unsigned (algorithm NONE). Without that, DSU's dm-verity FEC
+"repairs" every patched block back to stock at boot. The payload dir mirrors the image root:
 
   payload/system/product/overlay/treble-overlay-lp3.apk   -> /system/product/overlay/...
   payload/system/etc/permissions/x.xml                    -> /system/etc/permissions/x.xml
@@ -28,7 +31,8 @@ is skipped; symlinks and other non-regular files are refused.
 Input, output dir and payload must be under $HOME (colima shares only that), or under a root in
 LP3_TREBLE_SHARED_ROOTS (colon-separated).
 Env: MARGIN_MIB (default 256) extra space; BUILD_PROP_PATH (default /system/build.prop);
-     ALPINE_IMAGE, E2FSPROGS_PKG, E2FSPROGS_EXTRA_PKG (see scripts/lib.sh).
+     ALPINE_IMAGE, E2FSPROGS_PKG, E2FSPROGS_EXTRA_PKG, PYTHON3_PKG (see scripts/lib.sh);
+     LP3_TREBLE_AVBTOOL (local avbtool.py, must match the pinned hash), LP3_TREBLE_CACHE.
 Exit: 0 ok, 64 usage, 69 docker unavailable, 1 failure.
 USAGE
 }
@@ -89,6 +93,15 @@ echo "payload: $payload_count file(s), build.prop.append: $payload_append"
 
 need_docker
 
+avb_mount=() has_avb=0
+if has_avb_footer "$in_abs"; then
+  has_avb=1
+  avbtool=$(fetch_avbtool)
+  require_shared "avbtool" "$avbtool"
+  avb_mount=(-v "$(dirname "$avbtool"):/avb:ro" -e AVBTOOL="/avb/$(basename "$avbtool")")
+  echo "avb: input has an AVB footer; it will be replaced (avbtool $AVBTOOL_COMMIT)"
+fi
+
 # Arm the cleanup before the multi-GB copy so an interrupted or failed cp leaves nothing behind.
 # shellcheck disable=SC2154  # rc is set inside the trap string
 trap 'rc=$?; if [ $rc -ne 0 ]; then rm -f "$out_abs"; echo "patch failed; removed $out_abs" >&2; fi' EXIT
@@ -105,7 +118,10 @@ docker run --rm \
   -e BUILD_PROP_PATH="${BUILD_PROP_PATH:-/system/build.prop}" \
   -e PAYLOAD_COUNT="${LP3_TREBLE_FORCE_PAYLOAD_COUNT:-$payload_count}" \
   -e PAYLOAD_APPEND="$payload_append" \
+  -e HAS_AVB="$has_avb" \
+  ${avb_mount[@]+"${avb_mount[@]}"} \
   -e E2FS_PKGS="$E2FSPROGS_PKG $E2FSPROGS_EXTRA_PKG" \
+  -e PYTHON3_PKG="$PYTHON3_PKG" \
   "$ALPINE_IMAGE" sh /container/patch.sh
 
 echo "output: $out_abs ($(wc -c <"$out_abs" | tr -d ' ') bytes)"

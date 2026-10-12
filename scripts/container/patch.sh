@@ -1,7 +1,8 @@
 #!/bin/sh
 # Runs INSIDE the Alpine container. Do not call directly; use scripts/patch-gsi.sh.
 # Mounts: /img (rw, holds the output image), /payload (ro), /container (ro), /tmp scratch.
-# Env: IMG_NAME, MARGIN_MIB, BUILD_PROP_PATH, E2FS_PKGS, PAYLOAD_COUNT, PAYLOAD_APPEND
+# Env: IMG_NAME, MARGIN_MIB, BUILD_PROP_PATH, E2FS_PKGS, PAYLOAD_COUNT, PAYLOAD_APPEND,
+#      HAS_AVB (1: AVBTOOL and PYTHON3_PKG set, /avb mounted ro)
 set -eu
 
 IMG="/img/$IMG_NAME"
@@ -44,6 +45,13 @@ fi
 # shellcheck disable=SC2086  # E2FS_PKGS is a space-separated package list
 apk add --no-cache $E2FS_PKGS >/dev/null
 echo "e2fsprogs: $(dumpe2fs -V 2>&1 | head -1)"
+
+if [ "$HAS_AVB" = 1 ]; then
+  echo "== avb footer"
+  apk add --no-cache "$PYTHON3_PKG" >/dev/null
+  [ -s "$AVBTOOL" ] || die "avbtool not visible in the container ($AVBTOOL); $HINT"
+  python3 /container/avb-footer.py save "$AVBTOOL" "$IMG" "$W/avb.json" || die "AVB footer: cannot handle this image"
+fi
 
 # Default labels by path. contexts.txt line is "path context [mode]";
 # path is an image path ("/system/bin/x") or a dir prefix ending in "/". First match wins.
@@ -264,6 +272,11 @@ if [ "$have_append" -eq 1 ]; then
 fi
 e2fsck -fn "$IMG" >"$W/post.log" 2>&1 || { cat "$W/post.log"; die "e2fsck -fn not clean after patch"; }
 tail -1 "$W/post.log"
+
+if [ "$HAS_AVB" = 1 ]; then
+  echo "== avb footer"
+  python3 /container/avb-footer.py restore "$AVBTOOL" "$IMG" "$W/avb.json" || die "AVB footer: adding the new footer failed"
+fi
 
 echo "== summary"
 cat "$W/summary"

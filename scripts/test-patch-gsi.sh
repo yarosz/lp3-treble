@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Self-test for patch-gsi.sh and pack-dsu.sh on a throwaway 160 MiB ext4 image shaped like a GSI. Needs only docker.
+# Self-test for patch-gsi.sh and pack-dsu.sh on a throwaway 160 MiB ext4 image shaped like a GSI, with and
+# without an AVB hashtree footer. Needs docker, and network on the first run (apk, pinned avbtool).
 # shellcheck disable=SC2015  # "A && pass || fail": pass never fails
 set -euo pipefail
 
@@ -174,6 +175,62 @@ grep -q 'lp3-test.xml label u:object_r:exotic_perm_file:s0 (from sibling) differ
 grep -q 'treble-overlay-lp3.apk label u:object_r:vendor_overlay_file:s0 (from existing) differs' "$work/main.log" && pass "existing label note printed" || fail "existing note missing"
 grep -q 'warning: persist.lp3.test is already' "$work/main.log" && pass "non-ro duplicate warned" || fail "non-ro duplicate warning missing"
 
+grep -q '^avb:' "$work/main.log" && fail "avb step ran on a footerless image" || pass "footerless image: no avb step"
+
+echo
+echo "### AVB footer (seed + hashtree footer, like a GSI; no FEC here: avbtool needs an external fec binary)"
+avbtool=$(fetch_avbtool)
+salt=426ae27e37a999c2c9908a29e54c6804e1bd532062614d0f14f4944eebc8cd1e
+cat >"$work/mkavb.sh" <<'EOS'
+set -eu
+apk add --no-cache $E2FS_PKGS $PYTHON3_PKG >/dev/null
+a() { python3 "/avb/$AVBN" "$@"; }
+foot() { # foot <img> [extra args]
+  img=$1; shift
+  a add_hashtree_footer --image "$img" --partition_name system --hash_algorithm sha256 --salt "$SALT" \
+    --rollback_index 1777593600 --algorithm NONE --do_not_generate_fec \
+    --prop com.android.build.system.os_version:16 --prop 'com.lp3.test.spaces:a b:c' "$@"
+}
+cp /w/in.img /w/in_avb.img; foot /w/in_avb.img
+cp /w/in.img /w/in_avbk.img; foot /w/in_avbk.img --kernel_cmdline 'lp3.test=1'
+a info_image --image /w/in_avb.img | awk '/Root Digest:/ {print $3}' >/w/in_avb.digest
+EOS
+docker run --rm -v "$work:/w" -v "$(dirname "$avbtool"):/avb:ro" -e AVBN="$(basename "$avbtool")" -e SALT="$salt" \
+  -e E2FS_PKGS="$E2FSPROGS_PKG $E2FSPROGS_EXTRA_PKG" -e PYTHON3_PKG="$PYTHON3_PKG" "$ALPINE_IMAGE" sh /w/mkavb.sh
+"$here/patch-gsi.sh" "$work/in_avb.img" "$work/out_avb.img" "$work/payload" 2>&1 | tee "$work/avb.log" | grep -E '^(avb|==)|error|rror:|failed' || true
+cat >"$work/verifyavb.sh" <<'EOS'
+set -eu
+apk add --no-cache $E2FS_PKGS $PYTHON3_PKG >/dev/null
+fail=0
+ok() { echo "PASS $1"; }
+bad() { echo "FAIL $1"; fail=1; }
+img=/w/out_avb.img
+python3 "/avb/$AVBN" info_image --image $img >/tmp/info
+has() { grep -qF -- "$2" /tmp/info && ok "$1" || { bad "$1: no '$2'"; }; }
+has "salt kept" "Salt:                  $SALT"
+has "rollback index kept" "Rollback Index:           1777593600"
+has "partition name kept" "Partition Name:        system"
+has "prop kept" "Prop: com.android.build.system.os_version -> '16'"
+has "prop with spaces and colon kept" "Prop: com.lp3.test.spaces -> 'a b:c'"
+has "no FEC" "FEC num roots:         0"
+has "unsigned" "Algorithm:                NONE"
+# verify_image reads the data from "<partition>.img" beside the image it is given.
+mkdir -p /tmp/v && ln -s $img /tmp/v/system.img
+python3 "/avb/$AVBN" verify_image --image /tmp/v/system.img >/dev/null 2>&1 && ok "verify_image: hashtree matches the patched data" || bad "verify_image"
+d=$(awk '/Root Digest:/ {print $3}' /tmp/info)
+[ -n "$d" ] && [ "$d" != "$(cat /w/in_avb.digest)" ] && ok "root digest changed with the data" || bad "root digest unchanged ($d)"
+fs=$(awk '/Original image size:/ {print $4}' /tmp/info)
+sz=$(stat -c %s $img)
+[ "$sz" -gt "$fs" ] && ok "image $sz bytes > fs $fs bytes (tree + footer appended)" || bad "image size $sz vs fs $fs"
+# debugfs/e2fsck read the fs at the head of the file; the tree and footer sit past its end.
+debugfs -R "dump /system/lib64/libtest.so /tmp/lib" $img >/dev/null 2>&1
+[ "$(sha256sum /tmp/lib | cut -d' ' -f1)" = "$(cat /w/exp.libtest.so.sha)" ] && ok "payload file in the footered image" || bad "payload file missing or different"
+e2fsck -fn $img >/tmp/e.log 2>&1 && ok "e2fsck -fn clean" || { bad "e2fsck"; cat /tmp/e.log; }
+exit $fail
+EOS
+docker run --rm -v "$work:/w:ro" -v "$(dirname "$avbtool"):/avb:ro" -e AVBN="$(basename "$avbtool")" -e SALT="$salt" \
+  -e E2FS_PKGS="$E2FSPROGS_PKG $E2FSPROGS_EXTRA_PKG" -e PYTHON3_PKG="$PYTHON3_PKG" "$ALPINE_IMAGE" sh /w/verifyavb.sh || status=1
+
 echo
 echo "### refusals (each must fail, leave no output, and say why)"
 o="$work/o.img"
@@ -203,6 +260,10 @@ expect_fail "ro.* duplicate in build.prop.append" "ro.build.type" patch "$work/i
 # Same seed with a non-empty product_sepolicy.cil: the patcher must refuse to replace it.
 rm -rf "$work/p5"; mkdir -p "$work/p5/system/product/etc/selinux"; echo '(type x)' >"$work/p5/system/product/etc/selinux/product_sepolicy.cil"
 expect_fail "non-empty product_sepolicy.cil" "is not empty" patch "$work/in_pol.img" "$o" "$work/p5"
+# A fresh output name: reusing o.img right after a delete gave stale reads through colima's file sharing here.
+o="$work/o_avbk.img"
+expect_fail "AVB footer with a kernel cmdline descriptor" "unsupported AVB descriptors" patch "$work/in_avbk.img" "$o" "$work/payload"
+o="$work/o.img"
 if [ -f "$work/in_sb.img" ]; then
   expect_fail "shared_blocks image" "shared_blocks" patch "$work/in_sb.img" "$o" "$work/payload"
 else
