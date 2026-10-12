@@ -38,6 +38,8 @@ scripts/test-patch-gsi.sh                          # self-test on a throwaway 16
 ```
 
 `payload/` mirrors the image root, for example `payload/system/product/overlay/treble-overlay-lp3.apk`.
+`scripts/build-overlays.sh` builds each `overlays/<name>/` into `out/overlays/lp3-treble-<name>.apk` (Android SDK
+build-tools and the android-36 platform needed); copy those into `payload/system/product/overlay/`.
 Optional `payload/build.prop.append` lines go into a fresh copy of `/system/build.prop`. The input image is
 never modified; the output is grown by twice the payload plus 256 MiB (`MARGIN_MIB`, which also adds
 inodes), then checked with `e2fsck -fn`. The input must pass `e2fsck -fn` first (it is never auto-repaired)
