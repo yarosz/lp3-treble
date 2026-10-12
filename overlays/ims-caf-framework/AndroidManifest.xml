@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Static RRO on the framework: the device supports VoLTE. phh's overlay that sets this is gated on
+     persist.sys.phh.ims.caf, which the Treble app writes only 30 s after a boot, so the first boot after installing
+     the IMS app came up with VoLTE unavailable. Whether VoLTE is used still depends on the carrier config and on an
+     IMS service being bound. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.github.yarosz.lp3treble.overlay.imscaf.framework">
+    <overlay android:targetPackage="android" android:isStatic="true" android:priority="200" />
+    <application android:hasCode="false" />
+</manifest>

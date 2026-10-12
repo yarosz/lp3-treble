@@ -1,0 +1,6 @@
+# lp3-treble: LP3 panel is 318 dpi (dumpsys display xDpi); vendor ships 480. Same value as vandamd/light-guide.
+ro.sf.lcd_density=320
+
+# lp3-treble: stock LightOS sets NR/LTE/GSM/WCDMA (33) per slot; without it the GSI defaults the SIM to GSM/WCDMA and
+# AT&T (no 3G) never registers.
+ro.telephony.default_network=33,33
