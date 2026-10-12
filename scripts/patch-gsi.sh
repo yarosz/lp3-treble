@@ -17,14 +17,14 @@ the footer is erased before patching and a fresh one is added after: same partit
 rollback index and props, no FEC, unsigned (algorithm NONE). Without that, DSU's dm-verity FEC
 "repairs" every patched block back to stock at boot. The payload dir mirrors the image root:
 
-  payload/system/product/overlay/treble-overlay-lp3.apk   -> /system/product/overlay/...
+  payload/system/product/overlay/lp3-treble-x.apk        -> /system/product/overlay/...
   payload/system/etc/permissions/x.xml                    -> /system/etc/permissions/x.xml
   payload/build.prop.append   (optional) lines appended to /system/build.prop in a fresh copy
   payload/contexts.txt        (optional) "path context [mode]" overrides, e.g.
                               /system/bin/foo  u:object_r:system_file:s0  0755
 
 New files get uid/gid 0, mode 0644 and a label: contexts.txt, else the label of a regular file
-already in that directory, else the table in README.md. A replaced file keeps its old label, mode
+already in that directory, else the table in docs/patch-gsi.md. A replaced file keeps its old label, mode
 and uid/gid unless contexts.txt overrides. New directories get 0755. macOS junk (.DS_Store, ._*)
 is skipped; symlinks and other non-regular files are refused.
 
