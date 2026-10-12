@@ -18,6 +18,8 @@ haven't been scrubbed.
 - More AT&T network codes (Cricket 310/150, FirstNet 313/100) for the CarrierConfig overlay need testers
   with those SIMs.
 - Incoming call after `lp3-atel-ready`: expected unaffected (it only changes SMS buffering); live test pending.
+- `test-patch-gsi.sh` has no seed with an FEC footer (avbtool needs an external `fec` binary that Alpine doesn't
+  ship). The real GSI's FEC footer is covered only by the on-device run.
 
 ## Findings
 
