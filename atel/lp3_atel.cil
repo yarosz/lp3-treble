@@ -1,0 +1,55 @@
+; lp3-treble: SELinux domain for lp3-atel-ready (atel/README.md). Shipped as the GSI's product_sepolicy.cil, which
+; init compiles together with the platform and vendor policy at boot.
+; Only init enters the domain (from lp3_atel_exec). It is a client of the telephony HAL (the vendor policy lets
+; hal_telephony_client find and call the qcril hook) and serves nothing.
+(type lp3_atel)
+(roletype object_r lp3_atel)
+(type lp3_atel_exec)
+(roletype object_r lp3_atel_exec)
+(typeattributeset domain (lp3_atel))
+(typeattributeset coredomain (lp3_atel))
+(typeattributeset file_type (lp3_atel_exec))
+(typeattributeset exec_type (lp3_atel_exec))
+(typeattributeset system_file_type (lp3_atel_exec))
+(typeattributeset hal_telephony_client (lp3_atel))
+(typeattributeset halclientdomain (lp3_atel))
+
+; init_daemon_domain(lp3_atel)
+(allow init lp3_atel_exec (file (read getattr map execute open)))
+(allow init lp3_atel (process (transition)))
+(allow lp3_atel lp3_atel_exec (file (read getattr map execute open entrypoint)))
+(dontaudit init lp3_atel (process (noatsecure)))
+(allow init lp3_atel (process (siginh rlimitinh)))
+(typetransition init lp3_atel_exec process lp3_atel)
+
+; The launcher is a shell script that execs app_process in this domain.
+(allow lp3_atel shell_exec (file (read getattr map execute open)))
+(allow lp3_atel zygote_exec (file (read getattr map execute open execute_no_trans)))
+
+; hwbinder_use(lp3_atel)
+(allow lp3_atel hwbinder_device (chr_file (ioctl read write getattr lock append map open watch watch_reads)))
+(allow lp3_atel hwservicemanager (binder (call transfer)))
+(allow hwservicemanager lp3_atel (binder (call transfer)))
+(allow hwservicemanager lp3_atel (dir (search)))
+(allow hwservicemanager lp3_atel (file (read open)))
+(allow hwservicemanager lp3_atel (process (getattr)))
+(allow lp3_atel hwservicemanager_prop (file (read getattr map open)))
+(allow lp3_atel hidl_manager_hwservice (hwservice_manager (find)))
+
+; What ART needs to start app_process here (found with the domain permissive on the LP3): the boot image cache
+; under /data/misc/apexdata/com.android.art, the odsign status property, and userfaultfd for its garbage collector
+; (userfaultfd_use).
+(allow lp3_atel apex_module_data_file (dir (search)))
+(allow lp3_atel apex_art_data_file (dir (search getattr)))
+(allow lp3_atel apex_art_data_file (file (read open getattr map)))
+(allow lp3_atel odsign_prop (file (read open getattr map)))
+(type lp3_atel_userfaultfd)
+(roletype object_r lp3_atel_userfaultfd)
+(typetransition lp3_atel lp3_atel anon_inode "[userfaultfd]" lp3_atel_userfaultfd)
+(allow lp3_atel lp3_atel_userfaultfd (anon_inode (create ioctl read)))
+
+; ART falls back cleanly without these (no JIT, no dex cache, no attestation build props), so keep them quiet.
+(dontaudit lp3_atel tmpfs (file (write)))
+(dontaudit lp3_atel dalvikcache_data_file (dir (search)))
+(dontaudit lp3_atel build_attestation_prop (file (read open getattr map)))
+(dontaudit lp3_atel apex_info_file (file (getattr)))
