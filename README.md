@@ -25,6 +25,34 @@ Not in scope: camera, NFC, Light's own Tools on the GSI, eSIM management, Wi-Fi 
 kernel or any Android image. This repo ships overlays and props only, never vendor blobs or Light's
 proprietary files.
 
+## Build a patched image
+
+Needs docker (colima is fine) and a raw ext4 GSI `system.img` you downloaded yourself; no e2fsprogs on the
+host. The tools run e2fsprogs 1.47.0 in a pinned `alpine:3.20` container (versions in `scripts/lib.sh`),
+which needs network for `apk` on each run. Nothing is mounted and no device is touched.
+
+```
+scripts/patch-gsi.sh system.img patched.img payload/
+scripts/pack-dsu.sh patched.img patched.img.gz     # prints the DSU adb commands, runs nothing
+scripts/test-patch-gsi.sh                          # self-test on a throwaway 64 MiB image
+```
+
+`payload/` mirrors the image root, for example `payload/system/product/overlay/treble-overlay-lp3.apk`.
+Optional `payload/build.prop.append` lines go into a fresh copy of `/system/build.prop`. The input image is
+never modified; the output is grown by twice the payload plus 256 MiB (`MARGIN_MIB`, which also adds
+inodes), then checked with `e2fsck -fn`. Files get uid/gid 0 and mode 0644, new directories 0755.
+
+| Path | `security.selinux` |
+|---|---|
+| `/system/lib/*`, `/system/lib64/*` | `u:object_r:system_lib_file:s0` |
+| everything else (overlays, permission XMLs, keylayouts, props) | `u:object_r:system_file:s0` |
+
+Override with `payload/contexts.txt`, one `path context [mode]` per line (path or a dir prefix ending in `/`):
+
+```
+/system/bin/foo  u:object_r:system_file:s0  0755
+```
+
 ## Contributing test results
 
 A per-carrier test checklist comes with the first preview. Never paste IMEI, IMSI, ICCID, EID, phone
