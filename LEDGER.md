@@ -34,3 +34,4 @@ haven't been scrubbed.
 ## Log
 
 - 2026-10-11: Repo created. P0 read-only checks and research done.
+- 2026-10-11: Offline image patcher (`patch-gsi.sh`, `pack-dsu.sh`) and self-test added; self-test passes on a synthetic image. Not yet run on the real GSI.
