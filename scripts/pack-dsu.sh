@@ -21,15 +21,26 @@ case "$out" in *.gz) ;; *) echo "error: output must end in .gz" >&2; exit 64 ;; 
 size=$(wc -c <"$in" | tr -d ' ')
 userdata=${USERDATA_SIZE:-8589934592}
 
-gzip -c "$in" >"$out"
+[ -d "$(dirname "$out")" ] || { echo "error: output directory not found: $(dirname "$out")" >&2; exit 64; }
+# Write to a temp name and rename, so a failed or interrupted gzip never leaves a plausible .gz.
+# shellcheck disable=SC2154  # rc is set inside the trap string
+trap 'rc=$?; if [ $rc -ne 0 ]; then rm -f "$out.tmp"; fi' EXIT
+gzip -c "$in" >"$out.tmp"
+mv "$out.tmp" "$out"
+name=$(basename "$out")
+url_name=${name// /%20}
 echo "wrote $out ($(wc -c <"$out" | tr -d ' ') bytes; image is $size bytes uncompressed)"
 cat <<EOF
 
 Text only, nothing was run. Phone needs free space for the system image plus userdata.
 
-adb push $out /storage/emulated/0/Download/
+adb push "$out" /storage/emulated/0/Download/
+
+# if the DSU activity does nothing (feature flag off):
+adb shell setprop persist.sys.fflag.override.settings_dynamic_system true
+
 adb shell am start-activity -n com.android.dynsystem/com.android.dynsystem.VerificationActivity \\
   -a android.os.image.action.START_INSTALL \\
-  -d file:///storage/emulated/0/Download/$(basename "$out") \\
+  -d "file:///storage/emulated/0/Download/$url_name" \\
   --el KEY_SYSTEM_SIZE $size --el KEY_USERDATA_SIZE $userdata
 EOF

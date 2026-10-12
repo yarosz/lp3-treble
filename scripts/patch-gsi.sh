@@ -20,9 +20,13 @@ payload and checks the result with e2fsck. The payload dir mirrors the image roo
   payload/contexts.txt        (optional) "path context [mode]" overrides, e.g.
                               /system/bin/foo  u:object_r:system_file:s0  0755
 
-Files get uid/gid 0, mode 0644 and security.selinux per the table in README.md; new
-directories get 0755. Existing files at the same path are replaced.
+New files get uid/gid 0, mode 0644 and a label: contexts.txt, else the label of a regular file
+already in that directory, else the table in README.md. A replaced file keeps its old label, mode
+and uid/gid unless contexts.txt overrides. New directories get 0755. macOS junk (.DS_Store, ._*)
+is skipped; symlinks and other non-regular files are refused.
 
+Input, output dir and payload must be under $HOME (colima shares only that), or under a root in
+LP3_TREBLE_SHARED_ROOTS (colon-separated).
 Env: MARGIN_MIB (default 256) extra space; BUILD_PROP_PATH (default /system/build.prop);
      ALPINE_IMAGE, E2FSPROGS_PKG, E2FSPROGS_EXTRA_PKG (see scripts/lib.sh).
 Exit: 0 ok, 64 usage, 69 docker unavailable, 1 failure.
@@ -48,14 +52,50 @@ payload_abs=$(abspath "$payload")
 magic=$(dd if="$in_abs" bs=1 skip=1080 count=2 2>/dev/null | od -An -tx1 | tr -d ' \n')
 [ "$magic" = "53ef" ] || { echo "error: $in is not a raw ext4 image (sparse? run simg2img first)" >&2; exit 1; }
 
+# colima mounts only $HOME: refuse early rather than patch an empty mount.
+require_shared "input image" "$in_abs"
+require_shared "output directory" "$(dirname "$out_abs")"
+require_shared "payload dir" "$payload_abs"
+
+# Payload hygiene. Same listing code as the container (container/payload-list.sh).
+# shellcheck source-path=SCRIPTDIR source=container/payload-list.sh
+. "$here/container/payload-list.sh"
+special=$(payload_special "$payload_abs")
+if [ -n "$special" ]; then
+  echo "error: payload has entries that are not regular files or directories (symlink, fifo, device):" >&2
+  # shellcheck disable=SC2001
+  echo "$special" | sed 's/^/  /' >&2
+  exit 64
+fi
+junk=$(payload_junk "$payload_abs")
+if [ -n "$junk" ]; then
+  # shellcheck disable=SC2001
+  echo "$junk" | sed 's/^/note: skipping macOS junk file: /'
+fi
+if payload_files "$payload_abs" | grep -q '[[:space:]]'; then
+  echo "error: whitespace in a payload path (unsupported)" >&2; exit 64
+fi
+if [ -f "$payload_abs/contexts.txt" ]; then
+  awk -f "$here/container/validate-contexts.awk" "$payload_abs/contexts.txt" || exit 64
+fi
+payload_count=$(payload_files "$payload_abs" | wc -l | tr -d ' ')
+payload_append=0
+if [ -f "$payload_abs/build.prop.append" ]; then payload_append=1; fi
+if [ "$payload_count" -eq 0 ] && [ "$payload_append" -eq 0 ]; then
+  echo "error: nothing to inject: payload has no files and no build.prop.append: $payload" >&2
+  exit 64
+fi
+echo "payload: $payload_count file(s), build.prop.append: $payload_append"
+
 need_docker
 
-echo "copy: $in_abs -> $out_abs"
-cp "$in_abs" "$out_abs"
-# Any failure past this point leaves a partial output; remove it.
+# Arm the cleanup before the multi-GB copy so an interrupted or failed cp leaves nothing behind.
 # shellcheck disable=SC2154  # rc is set inside the trap string
 trap 'rc=$?; if [ $rc -ne 0 ]; then rm -f "$out_abs"; echo "patch failed; removed $out_abs" >&2; fi' EXIT
+echo "copy: $in_abs -> $out_abs"
+cp "$in_abs" "$out_abs"
 
+# LP3_TREBLE_FORCE_PAYLOAD_COUNT is a test hook that fakes a host/container mismatch.
 docker run --rm \
   -v "$(dirname "$out_abs"):/img" \
   -v "$payload_abs:/payload:ro" \
@@ -63,6 +103,8 @@ docker run --rm \
   -e IMG_NAME="$(basename "$out_abs")" \
   -e MARGIN_MIB="${MARGIN_MIB:-256}" \
   -e BUILD_PROP_PATH="${BUILD_PROP_PATH:-/system/build.prop}" \
+  -e PAYLOAD_COUNT="${LP3_TREBLE_FORCE_PAYLOAD_COUNT:-$payload_count}" \
+  -e PAYLOAD_APPEND="$payload_append" \
   -e E2FS_PKGS="$E2FSPROGS_PKG $E2FSPROGS_EXTRA_PKG" \
   "$ALPINE_IMAGE" sh /container/patch.sh
 
