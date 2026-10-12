@@ -155,6 +155,14 @@ while IFS= read -r f; do
   ov_ctx=$(lookup "$f" 2); ov_mode=$(lookup "$f" 3)
   ctx=""; src=table; mode=0644; uid=0; gid=0
   if exists "$f"; then
+    case "$f" in
+      */etc/selinux/product_sepolicy.cil|*/etc/selinux/product_file_contexts)
+        # The pack replaces these whole because the GSI ships them empty; never drop a GSI's own product policy.
+        debugfs -R "dump $f $W/old" "$IMG" >/dev/null 2>&1
+        if grep -q '[^[:space:]]' "$W/old"; then
+          die "$f in the image is not empty; replacing it would drop the GSI's own product policy. Merge it by hand."
+        fi ;;
+    esac
     # Replacing: keep the old label, mode and owner unless contexts.txt says otherwise.
     # shellcheck disable=SC2046  # intentional split into fields
     set -- $(info "$f")

@@ -31,6 +31,8 @@ cat >"$work/payload/system/etc/permissions/lp3-test.xml" <<'XML'
 </permissions>
 XML
 head -c 4097 /dev/urandom >"$work/payload/system/lib64/libtest.so"
+mkdir -p "$work/payload/system/product/etc/selinux"
+echo '/system/bin/x u:object_r:system_file:s0' >"$work/payload/system/product/etc/selinux/product_file_contexts"
 printf 'ro.lp3.test=1\npersist.lp3.test=on\n' >"$work/payload/build.prop.append"
 printf '/system/lib64/libtest.so u:object_r:system_lib_file:s0 0755\r\n' >"$work/payload/contexts.txt"   # CRLF on purpose
 # macOS junk that must be skipped, not injected, and not counted.
@@ -41,6 +43,7 @@ echo junk >"$work/payload/.DS_Store"; echo junk >"$work/payload/system/lib64/.DS
 # labels, modes and owners (an overlay to replace, a sibling in /system/etc/permissions).
 printf 'ro.build.type=userdebug\nro.treble.enabled=true\npersist.lp3.test=off' >"$work/seed.prop"   # no trailing newline
 head -c 1000 /dev/urandom >"$work/old.apk"
+printf '\n' >"$work/nl.txt"; : >"$work/empty.txt"
 echo '<permissions/>' >"$work/old.xml"
 cat >"$work/mkseed.sh" <<'EOS'
 set -eu
@@ -63,7 +66,8 @@ lbl bp u:object_r:vendor_prop_file:s0
 lbl ovl u:object_r:vendor_overlay_file:s0
 lbl perm u:object_r:exotic_perm_file:s0
 {
-  for d in /system /system/product /system/product/overlay /system/etc /system/etc/permissions; do
+  for d in /system /system/product /system/product/overlay /system/etc /system/etc/permissions \
+    /system/product/etc /system/product/etc/selinux; do
     echo "mkdir $d"; echo "set_inode_field $d mode 040755"; echo "ea_set -f /tmp/l.sys $d security.selinux"
   done
   echo "write /w/seed.prop /system/build.prop"
@@ -76,8 +80,16 @@ lbl perm u:object_r:exotic_perm_file:s0
   echo "ea_set -f /tmp/l.ovl /system/product/overlay/treble-overlay-lp3.apk security.selinux"
   echo "write /w/old.xml /system/etc/permissions/seed.xml"
   echo "ea_set -f /tmp/l.perm /system/etc/permissions/seed.xml security.selinux"
+  # The GSI ships these empty (one newline / zero bytes); a non-empty one must never be replaced.
+  echo "write /w/nl.txt /system/product/etc/selinux/product_sepolicy.cil"
+  echo "write /w/empty.txt /system/product/etc/selinux/product_file_contexts"
 } >/tmp/c
 debugfs -w -f /tmp/c /w/in.img >/dev/null
+# Variant whose product_sepolicy.cil already has policy, for the refusal test.
+cp /w/in.img /w/in_pol.img
+printf '(type gsi_own)\n' >/w/pol.txt
+debugfs -w -R "rm /system/product/etc/selinux/product_sepolicy.cil" /w/in_pol.img >/dev/null
+debugfs -w -R "write /w/pol.txt /system/product/etc/selinux/product_sepolicy.cil" /w/in_pol.img >/dev/null
 # Variant with shared_blocks set, for the refusal test.
 cp /w/in.img /w/in_sb.img
 debugfs -w -R "feature shared_blocks" /w/in_sb.img >/dev/null
@@ -127,6 +139,9 @@ chk /system/product/overlay/treble-overlay-lp3.apk 0755 u:object_r:vendor_overla
 chk /system/etc/permissions/lp3-test.xml 0644 u:object_r:exotic_perm_file:s0 0 0
 # New file in a new dir: the contexts.txt override (CRLF file) wins.
 chk /system/lib64/libtest.so 0755 u:object_r:system_lib_file:s0 0 0
+# Empty product_file_contexts replaced (sibling label: the seed left these unlabelled, so the table default).
+debugfs -R "dump /system/product/etc/selinux/product_file_contexts /tmp/pfc" $img >/dev/null 2>&1
+grep -q '^/system/bin/x ' /tmp/pfc && ok "empty product_file_contexts replaced" || bad "product_file_contexts not replaced"
 # Untouched sibling.
 chk /system/etc/permissions/seed.xml 0644 u:object_r:exotic_perm_file:s0 0 0
 for d in /system/etc /system/etc/permissions /system/lib64; do
@@ -154,7 +169,7 @@ pass() { echo "PASS $1"; }
 fail() { echo "FAIL $1"; status=1; }
 if [ "$in_sum_before" = "$in_sum_after" ]; then pass "input image untouched"; else fail "input image modified"; fi
 grep -q 'skipping macOS junk file: .DS_Store' "$work/main.log" && pass "junk skip noted" || fail "junk skip note missing"
-grep -q 'payload: 3 file(s)' "$work/main.log" && pass "junk excluded from payload count (3)" || fail "payload count line"
+grep -q 'payload: 4 file(s)' "$work/main.log" && pass "junk excluded from payload count (4)" || fail "payload count line"
 grep -q 'lp3-test.xml label u:object_r:exotic_perm_file:s0 (from sibling) differs' "$work/main.log" && pass "sibling label note printed" || fail "sibling note missing"
 grep -q 'treble-overlay-lp3.apk label u:object_r:vendor_overlay_file:s0 (from existing) differs' "$work/main.log" && pass "existing label note printed" || fail "existing note missing"
 grep -q 'warning: persist.lp3.test is already' "$work/main.log" && pass "non-ro duplicate warned" || fail "non-ro duplicate warning missing"
@@ -185,6 +200,9 @@ rm -rf "$work/p3"; mkdir -p "$work/p3"
 expect_fail "empty payload" "nothing to inject" patch "$work/in.img" "$o" "$work/p3"
 rm -rf "$work/p4"; mkdir -p "$work/p4"; printf 'ro.build.type=user\n' >"$work/p4/build.prop.append"
 expect_fail "ro.* duplicate in build.prop.append" "ro.build.type" patch "$work/in.img" "$o" "$work/p4"
+# Same seed with a non-empty product_sepolicy.cil: the patcher must refuse to replace it.
+rm -rf "$work/p5"; mkdir -p "$work/p5/system/product/etc/selinux"; echo '(type x)' >"$work/p5/system/product/etc/selinux/product_sepolicy.cil"
+expect_fail "non-empty product_sepolicy.cil" "is not empty" patch "$work/in_pol.img" "$o" "$work/p5"
 if [ -f "$work/in_sb.img" ]; then
   expect_fail "shared_blocks image" "shared_blocks" patch "$work/in_sb.img" "$o" "$work/payload"
 else

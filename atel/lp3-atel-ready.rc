@@ -1,14 +1,15 @@
 # lp3-treble: tell qcril the telephony UI is ready (atel/README.md). Runs once after boot, and again whenever a
 # qcril HAL process (one per SIM slot) comes back after a restart. Vendors without these services never start it.
+# `restart`, not `start`: a qcril restart while a previous run is still retrying must not be dropped. The new run
+# sends to every slot again, which is harmless.
 service lp3_atel_ready /product/bin/lp3-atel-ready
-    class late_start
     user radio
     group radio
     disabled
     oneshot
 
 on property:sys.boot_completed=1 && property:init.svc.vendor.qcrild=running
-    start lp3_atel_ready
+    restart lp3_atel_ready
 
 on property:sys.boot_completed=1 && property:init.svc.vendor.qcrild2=running
-    start lp3_atel_ready
+    restart lp3_atel_ready

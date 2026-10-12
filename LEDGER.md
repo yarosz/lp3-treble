@@ -54,4 +54,5 @@ haven't been scrubbed.
 - 2026-10-11: Offline image patcher (`patch-gsi.sh`, `pack-dsu.sh`) and self-test added; self-test passes on a synthetic image. Not yet run on the real GSI.
 - 2026-10-12: CarrierConfig overlay (VoLTE on AT&T SIMs): calls both ways and outgoing SMS work in the GSI.
 - 2026-10-12: `lp3-atel-ready` (init service, own SELinux domain): incoming SMS arrive with the screen off and in
-  deep doze, on an enforcing image built from this repo's sources.
+  deep doze, on an enforcing image with this repo's files (patched by a private patcher build that regenerates
+  the AVB footer; see Open items). Outgoing SMS and calls unchanged; incoming call test pending.

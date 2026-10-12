@@ -42,7 +42,8 @@ scripts/test-patch-gsi.sh                          # self-test on a throwaway 16
 build-tools and the android-36 platform needed); copy those into `payload/system/product/overlay/`.
 `scripts/build-atel.sh` builds `lp3-atel-ready`, the fix for incoming SMS lost while the screen is off
 ([`atel/README.md`](atel/README.md)), and stages it under `out/atel/payload/`: merge that tree into your
-payload and append its `contexts.txt` lines to yours.
+payload and append its `contexts.txt` lines to yours. Before installing a new GSI build, run
+`scripts/check-sepolicy.sh` (see `atel/README.md`): a product policy that doesn't compile stops the GSI booting.
 Optional `payload/build.prop.append` lines go into a fresh copy of `/system/build.prop`. The input image is
 never modified; the output is grown by twice the payload plus 256 MiB (`MARGIN_MIB`, which also adds
 inodes), then checked with `e2fsck -fn`. The input must pass `e2fsck -fn` first (it is never auto-repaired)
