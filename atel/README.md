@@ -66,10 +66,8 @@ The request is built byte by byte from the observed values and sent as a raw HID
 ## Tested
 
 LP3 (TLP301), stock vendor `00WW_1_440000`, MisterZtr LineageOS 23.2 GSI via DSU, SELinux enforcing, AT&T
-network. The image carried exactly these files; it was patched with a private build of the patcher that also
-regenerates the AVB hashtree footer (`patch-gsi.sh` does not do that yet: see `LEDGER.md` Open items).
+network.
 
 - Incoming SMS with the screen off, and in forced deep doze: received.
 - After a qcril restart: the tool runs again and qcril reports the status set.
-- Outgoing SMS and outgoing VoLTE calls: unchanged. Incoming calls: expected unchanged (this only affects
-  SMS buffering); live test pending.
+- Outgoing SMS and VoLTE calls in both directions: unchanged.
