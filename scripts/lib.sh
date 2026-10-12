@@ -49,14 +49,17 @@ sha256_of() { # sha256_of <file>
 
 # fetch_avbtool: print the path of a hash-checked avbtool.py, downloading it into CACHE_DIR if needed.
 fetch_avbtool() {
-  local f=${LP3_TREBLE_AVBTOOL:-$CACHE_DIR/avbtool-$AVBTOOL_COMMIT.py}
-  if [ ! -f "$f" ]; then
-    if [ -n "${LP3_TREBLE_AVBTOOL:-}" ]; then echo "error: LP3_TREBLE_AVBTOOL not found: $f" >&2; return 1; fi
+  local f=${LP3_TREBLE_AVBTOOL:-$CACHE_DIR/avbtool-$AVBTOOL_COMMIT.py} tmp
+  if [ -n "${LP3_TREBLE_AVBTOOL:-}" ]; then
+    [ -f "$f" ] || { echo "error: LP3_TREBLE_AVBTOOL not found: $f" >&2; return 1; }
+    f=$(abspath "$(dirname "$f")")/$(basename "$f")
+  elif [ ! -f "$f" ]; then
     mkdir -p "$CACHE_DIR"
     echo "fetch: avbtool.py at AOSP external/avb $AVBTOOL_COMMIT" >&2
-    # gitiles serves raw files base64-encoded.
-    curl -fsSL "$AVBTOOL_URL" | base64 -d >"$f.tmp" || { rm -f "$f.tmp"; echo "error: avbtool download failed" >&2; return 1; }
-    mv "$f.tmp" "$f"
+    tmp=$(mktemp "$CACHE_DIR/avbtool.XXXXXX")
+    # gitiles serves raw files base64-encoded; openssl decodes on every macOS and Linux.
+    curl -fsSL "$AVBTOOL_URL" | openssl base64 -d -A >"$tmp" || { rm -f "$tmp"; echo "error: avbtool download failed" >&2; return 1; }
+    mv "$tmp" "$f"
   fi
   local got
   got=$(sha256_of "$f")

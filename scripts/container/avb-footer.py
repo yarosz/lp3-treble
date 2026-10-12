@@ -9,6 +9,9 @@
 # header flags and properties. It has no FEC and no signature (algorithm NONE), which DSU accepts on
 # an unlocked bootloader. Anything else in the vbmeta (hash or chain descriptors, kernel cmdlines,
 # hashtree flags) is refused rather than dropped.
+#
+# Uses avbtool's internal parser (Avb()._parse_image and the descriptor classes); fine while avbtool is pinned by
+# AVBTOOL_COMMIT in scripts/lib.sh, recheck on any bump. Run with python3 -I so nothing beside a script shadows stdlib.
 import importlib.util
 import json
 import os
@@ -27,6 +30,28 @@ def load_avbtool(path):
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+def ext4_bytes(image):
+    """Filesystem size from the ext4 superblock (s_blocks_count_lo/hi, s_log_block_size)."""
+    with open(image, "rb") as f:
+        f.seek(1024)
+        sb = f.read(0x158)
+    lo = int.from_bytes(sb[4:8], "little")
+    log_bs = int.from_bytes(sb[24:28], "little")
+    hi = int.from_bytes(sb[0x150:0x154], "little")
+    return ((hi << 32) | lo) * (1024 << log_bs)
+
+
+def round_up(n, m):
+    return (n + m - 1) // m * m
+
+
+def run(cmd):
+    try:
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as e:
+        die(f"avbtool {cmd[3]} failed (exit {e.returncode})")
 
 
 def parse(avb, image):
@@ -59,7 +84,7 @@ def save(avbtool, image, state):
         die(f"data block size {t.data_block_size} != hash block size {t.hash_block_size}")
     if t.flags != 0:
         die(f"hashtree descriptor flags {t.flags} are not supported")
-    if t.image_size != footer.original_image_size:
+    if t.image_size != round_up(footer.original_image_size, t.data_block_size):
         die(f"hashtree covers {t.image_size} bytes but the original image is {footer.original_image_size}")
     out_props = []
     for p in props:
@@ -81,20 +106,23 @@ def save(avbtool, image, state):
         "original_image_size": footer.original_image_size,
         "root_digest": t.root_digest.hex(),
         "fec_num_roots": t.fec_num_roots,
+        "algorithm": avb.lookup_algorithm_by_type(header.algorithm_type)[0],
     }
     with open(state, "w") as f:
         json.dump(s, f, indent=1)
     print(f"avb: footer found: partition {s['partition_name']}, {s['hash_algorithm']}, block {s['block_size']}, "
           f"fec roots {s['fec_num_roots']}, rollback index {s['rollback_index']}, {len(out_props)} prop(s), "
-          f"fs {s['original_image_size']} bytes, root digest {s['root_digest']}")
-    subprocess.run([sys.executable, avbtool, "erase_footer", "--image", image], check=True)
+          f"fs {s['original_image_size']} bytes, signed {s['algorithm']}, root digest {s['root_digest']}")
+    if s["algorithm"] != "NONE":
+        print(f"avb: the new footer will be unsigned (was {s['algorithm']}); DSU accepts that only on an unlocked bootloader")
+    run([sys.executable, "-I", avbtool, "erase_footer", "--image", image])
     print("avb: footer erased")
 
 
 def restore(avbtool, image, state):
     with open(state) as f:
         s = json.load(f)
-    cmd = [sys.executable, avbtool, "add_hashtree_footer", "--image", image,
+    cmd = [sys.executable, "-I", avbtool, "add_hashtree_footer", "--image", image,
            "--partition_name", s["partition_name"], "--hash_algorithm", s["hash_algorithm"],
            "--block_size", str(s["block_size"]), "--salt", s["salt"],
            "--rollback_index", str(s["rollback_index"]),
@@ -102,7 +130,7 @@ def restore(avbtool, image, state):
            "--flags", str(s["flags"]), "--algorithm", "NONE", "--do_not_generate_fec"]
     for k, v in s["props"]:
         cmd += ["--prop", f"{k}:{v}"]
-    subprocess.run(cmd, check=True)
+    run(cmd)
 
     avb = load_avbtool(avbtool)
     footer, header, descriptors = parse(avb, image)
@@ -119,8 +147,12 @@ def restore(avbtool, image, state):
         ("rollback index location", header.rollback_index_location, s["rollback_index_location"]),
         ("flags", header.flags, s["flags"]),
         ("props", got_props, s["props"]),
+        ("block size", t.data_block_size, s["block_size"]),
+        ("algorithm", avb.lookup_algorithm_by_type(header.algorithm_type)[0], "NONE"),
         ("fec roots", t.fec_num_roots, 0),
-        ("covered size", t.image_size, footer.original_image_size),
+        # The patched filesystem fills the image, so the tree must cover exactly the ext4 size.
+        ("covered size", t.image_size, round_up(ext4_bytes(image), s["block_size"])),
+        ("original image size", footer.original_image_size, ext4_bytes(image)),
     ]
     for name, got, want in checks:
         if got != want:
@@ -130,13 +162,12 @@ def restore(avbtool, image, state):
     with tempfile.TemporaryDirectory() as d:
         link = os.path.join(d, s["partition_name"] + ".img")
         os.symlink(os.path.abspath(image), link)
-        subprocess.run([sys.executable, avbtool, "verify_image", "--image", link], check=True,
-                       stdout=subprocess.DEVNULL)
-    print(f"avb: new hashtree footer: fs {footer.original_image_size} bytes, image {footer_image_size(image)} bytes, "
+        run([sys.executable, "-I", avbtool, "verify_image", "--image", link])
+    print(f"avb: new hashtree footer: fs {footer.original_image_size} bytes, image {file_size(image)} bytes, "
           f"no FEC, algorithm NONE, root digest {t.root_digest.hex()} (verify_image ok)")
 
 
-def footer_image_size(image):
+def file_size(image):
     with open(image, "rb") as f:
         f.seek(0, 2)
         return f.tell()

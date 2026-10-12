@@ -50,7 +50,7 @@ if [ "$HAS_AVB" = 1 ]; then
   echo "== avb footer"
   apk add --no-cache "$PYTHON3_PKG" >/dev/null
   [ -s "$AVBTOOL" ] || die "avbtool not visible in the container ($AVBTOOL); $HINT"
-  python3 /container/avb-footer.py save "$AVBTOOL" "$IMG" "$W/avb.json" || die "AVB footer: cannot handle this image"
+  python3 -I /container/avb-footer.py save "$AVBTOOL" "$IMG" "$W/avb.json" || die "AVB footer: cannot handle this image"
 fi
 
 # Default labels by path. contexts.txt line is "path context [mode]";
@@ -275,7 +275,7 @@ tail -1 "$W/post.log"
 
 if [ "$HAS_AVB" = 1 ]; then
   echo "== avb footer"
-  python3 /container/avb-footer.py restore "$AVBTOOL" "$IMG" "$W/avb.json" || die "AVB footer: adding the new footer failed"
+  python3 -I /container/avb-footer.py restore "$AVBTOOL" "$IMG" "$W/avb.json" || die "AVB footer: adding the new footer failed"
 fi
 
 echo "== summary"

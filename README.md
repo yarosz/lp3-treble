@@ -35,7 +35,7 @@ GSI images end in an AVB hashtree footer with forward error correction (FEC). DS
 through it, and FEC silently "repairs" every patched block back to stock at boot, so a naively patched image
 boots unpatched. `patch-gsi.sh` erases that footer before patching and adds a fresh one after: same partition
 name, hash algorithm, salt, rollback index and properties, no FEC, unsigned (algorithm NONE, which DSU
-accepts on an unlocked bootloader). It refuses footers carrying anything else (hash or chain descriptors,
+accepts on an unlocked bootloader; on a locked one the install or boot fails, which the patcher can't check). It refuses footers carrying anything else (hash or chain descriptors,
 kernel command lines). The tool is AOSP's `avbtool.py` (Apache-2.0), fetched on first use from
 `platform/external/avb` at a pinned commit (tag `android-16.0.0_r1`), checked against a pinned sha256 and
 cached in `~/.cache/lp3-treble/`; set `LP3_TREBLE_AVBTOOL` to use a local copy (same hash).

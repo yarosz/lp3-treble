@@ -100,6 +100,8 @@ if has_avb_footer "$in_abs"; then
   require_shared "avbtool" "$avbtool"
   avb_mount=(-v "$(dirname "$avbtool"):/avb:ro" -e AVBTOOL="/avb/$(basename "$avbtool")")
   echo "avb: input has an AVB footer; it will be replaced (avbtool $AVBTOOL_COMMIT)"
+else
+  echo "note: no AVB footer at the end of the input; if this image is verified some other way, patched blocks may not survive"
 fi
 
 # Arm the cleanup before the multi-GB copy so an interrupted or failed cp leaves nothing behind.
