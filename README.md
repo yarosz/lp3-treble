@@ -1,12 +1,13 @@
 # lp3-treble
 
 LP3-specific configuration for running a generic Android Treble GSI on the Light Phone III (TLP301,
-Qualcomm SM4450 "parrot"). It ships overlays, props and one small helper, and goes into a patched GSI image
-(later also a KernelSU or Magisk module). The stock vendor and kernel stay unchanged.
+Qualcomm SM4450 "parrot"). The pack is a set of overlays, props and one small helper that you patch into a GSI
+image. The stock vendor and kernel stay unchanged.
 
 First target: the unofficial LineageOS GSI by MisterZtr ([MisterZtr/LineageOS_gsi](https://github.com/MisterZtr/LineageOS_gsi)).
 
-**Status: work in progress, nothing to install yet.** Progress is in [`LEDGER.md`](LEDGER.md).
+**Status: work in progress, no release yet. You can build a test image yourself.** Progress is in
+[`LEDGER.md`](LEDGER.md).
 
 > Unaffiliated with Light. "Light Phone" is Light's trademark. This project is not endorsed by Light,
 > LineageOS or any GSI maintainer. For the LineageOS GSI (unofficial). Unlocking and flashing can lose
@@ -14,12 +15,12 @@ First target: the unofficial LineageOS GSI by MisterZtr ([MisterZtr/LineageOS_gs
 
 ## What's in the pack
 
-| Part | What it fixes |
+| Part | What it does |
 |---|---|
-| [`atel/`](atel/README.md) (`lp3-atel-ready`) | Incoming SMS lost while the screen is off |
-| `overlays/carrierconfig` | VoLTE off for AT&T SIMs (310/280, 310/410) |
-| `overlays/ims-caf`, `overlays/ims-caf-framework` | VoLTE missing on the first boot after installing the IMS app ([why](docs/ims-overlays.md)) |
-| `props/product.prop` | Display density (320) and LTE as the default network mode |
+| [`atel/`](atel/README.md) (`lp3-atel-ready`) | Delivers incoming SMS while the screen is off |
+| `overlays/carrierconfig` | Enables VoLTE for AT&T SIMs (310/280, 310/410) |
+| `overlays/ims-caf`, `overlays/ims-caf-framework` | Brings up VoLTE on the first boot after you install the IMS app ([why](docs/ims-overlays.md)) |
+| `props/product.prop` | Sets display density 320 and NR/LTE/GSM/WCDMA as the default network mode |
 
 ## Scope of the first preview
 
@@ -39,8 +40,14 @@ You need:
 
 - docker (colima works). The tools run e2fsprogs and avbtool in a container, so the host needs neither.
 - The Android SDK (build-tools and the android-36 platform) and a JDK.
-- A raw ext4 GSI `system.img` that you downloaded and unpacked yourself.
+- Network access. The patcher downloads Alpine packages on each run and avbtool on the first run.
+- A GSI `system.img` that you downloaded yourself, unpacked to raw ext4. A sparse image needs `simg2img`
+  first. Keep it under `$HOME`, the only path colima shares with docker by default.
 - An LP3 with an unlocked bootloader, to boot the result through DSU.
+
+The pack was tested on MisterZtr's LineageOS 23.2 GSI. If you use another GSI build, first run
+`scripts/check-sepolicy.sh`: a product policy that doesn't compile stops the GSI from booting
+([`atel/README.md`](atel/README.md) explains why).
 
 1. Build the pack. The payload goes to `out/payload/`.
 
@@ -48,7 +55,8 @@ You need:
    scripts/build-payload.sh
    ```
 
-2. Patch your GSI image. Your `system.img` is copied, never changed.
+2. Patch your GSI image. The patcher copies `system.img` and never changes it. It refuses to overwrite an
+   existing `lp3.img`, so delete that file before a re-run.
 
    ```
    BUILD_PROP_PATH=/system/product/etc/build.prop scripts/patch-gsi.sh system.img lp3.img out/payload
@@ -60,18 +68,19 @@ You need:
    scripts/pack-dsu.sh lp3.img lp3.img.gz
    ```
 
-4. Run the printed `adb` commands. When the install finishes, boot the GSI once:
+4. Run the printed `adb` commands, and confirm the install on the phone if it asks.
+5. When the install finishes, boot the GSI. This enable lasts one boot, and the next reboot returns to
+   LightOS.
 
    ```
    adb shell gsi_tool enable --single-boot
    adb reboot
    ```
 
-5. In the GSI, install the Qualcomm IMS app from phh's Treble settings (IMS section), then reboot once.
+6. In the GSI, install the Qualcomm IMS app from phh's Treble settings (IMS section).
+7. Reboot to LightOS, then repeat step 5. VoLTE is available from this boot on.
 
-All options, label rules and the AVB footer handling are in the [`patch-gsi.sh` reference](docs/patch-gsi.md).
-Before you use a new GSI build, run `scripts/check-sepolicy.sh` ([`atel/README.md`](atel/README.md)
-explains why).
+For options, label rules and AVB footer handling, see the [`patch-gsi.sh` reference](docs/patch-gsi.md).
 
 ## Contributing test results
 

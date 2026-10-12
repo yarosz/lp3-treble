@@ -19,7 +19,8 @@ working one. Once those overlays were on, 6 boots in a row all had VoLTE.
 
 `overlays/ims-caf` (`config_ims_mmtel_package=org.codeaurora.ims`) and `overlays/ims-caf-framework`
 (`config_device_volte_available=true`) set the same values as static overlays, so they apply from the first
-boot. With them, the first boot after installing the IMS app had VoLTE. The values match phh's overlays as of
+boot. With them, the first boot after installing the IMS app had VoLTE. That result comes from single
+fresh-install runs on one LP3 with an AT&T-network SIM (see `LEDGER.md`). The values match phh's overlays as of
 phhusson/treble_app's `QtiAudio.kt` (`handleDynIms`) and `Ims.kt`, October 2026. Keep them in sync if phh
 changes those.
 

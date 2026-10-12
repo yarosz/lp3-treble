@@ -5,6 +5,8 @@
 # Then: BUILD_PROP_PATH=/system/product/etc/build.prop scripts/patch-gsi.sh system.img lp3.img out/payload
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
+# Start clean so a renamed or deleted overlay doesn't ship its old APK.
+rm -rf "$root/out/overlays"
 "$root/scripts/build-overlays.sh"
 "$root/scripts/build-atel.sh"
 pl=$root/out/payload
