@@ -2,17 +2,22 @@
 
 The GSI's APN list is AOSP's, and on the LP3's US Mobile line it picks an APN that doesn't give working mobile
 data. `scripts/apn/set-apn.sh` adds the APN stock LightOS uses and makes it the preferred APN of the SIM that
-carries mobile data. It runs over adb without root, and it reuses a matching APN row rather than adding a
-duplicate, so running it twice is safe.
+carries mobile data. Run it while the GSI is booted: the GSI and LightOS keep separate APN lists. It uses adb
+without root, and it reuses a matching, enabled APN row rather than adding a duplicate, so running it twice is
+safe.
 
 ```
 scripts/apn/set-apn.sh darkstar      # US Mobile Dark Star, AT&T network (310/280)
 scripts/apn/set-apn.sh lightspeed    # US Mobile Light Speed, T-Mobile network (310/240)
 ```
 
-It refuses when no SIM in the phone has that network code. It prints the row it used and an `undo:` command
-that restores the previous preferred APN and deletes any row it added. You can also delete the APN in
-Settings > Network & internet > SIMs > Access Point Names.
+It refuses when the mobile-data SIM is on another network. When it changes something, it prints an `undo:`
+command: keep it. The undo deletes the row the script added and returns the APN choice to automatic. A rerun
+that finds nothing to change prints `nothing changed` and no undo. You can also delete the APN in Settings >
+Network & internet > SIMs > Access Point Names.
+
+The `lightspeed` path was tested on the LP3 in the GSI. The `darkstar` path uses the same code with the values
+US Mobile support gave for Dark Star; it was not run on a Dark Star SIM (the test line moved to Light Speed).
 
 | Network | Without the script | APN it sets |
 |---|---|---|
