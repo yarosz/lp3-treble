@@ -21,6 +21,10 @@ First target: the unofficial LineageOS GSI by MisterZtr ([MisterZtr/LineageOS_gs
 | `overlays/carrierconfig` | Enables VoLTE for AT&T SIMs (310/280, 310/410) |
 | `overlays/ims-caf`, `overlays/ims-caf-framework` | Brings up VoLTE on the first boot after you install the IMS app ([why](docs/ims-overlays.md)) |
 | `props/product.prop` | Sets display density 320 and NR/LTE/GSM/WCDMA as the default network mode |
+| `keylayout/` | Maps the scroll wheel and the side keys (same mapping as vandamd/light-guide) |
+
+The pack comes in two forms built from the same sources: a patched GSI image (below) and a KernelSU / Magisk
+module for a rooted GSI ([module](docs/module.md)).
 
 ## Scope of the first preview
 

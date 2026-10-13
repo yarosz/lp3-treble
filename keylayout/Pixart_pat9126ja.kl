@@ -1,0 +1,3 @@
+# LP3 scroll wheel (Pixart pat9126ja). Same mapping as vandamd/light-guide.
+key 19    BRIGHTNESS_UP
+key 20    BRIGHTNESS_DOWN

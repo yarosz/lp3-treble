@@ -33,7 +33,7 @@ stops the GSI booting, so check it offline before installing a new GSI build:
 `scripts/check-sepolicy.sh <GSI system.img> <vendor policy dir>` (the script says which three files to pull
 from the phone). It fails if the policy does not compile or adds a neverallow violation.
 
-Behaviour:
+Behaviour (image form; the module form starts it differently, see `docs/module.md`):
 
 - init (re)starts it when `sys.boot_completed=1` and a qcril service (`vendor.qcrild`, `vendor.qcrild2`) is
   running, so it runs once after boot and again each time qcril restarts, even if a previous run is still

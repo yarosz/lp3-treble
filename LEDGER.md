@@ -12,6 +12,9 @@ haven't been scrubbed.
 
 ## Open items
 
+- The module form (`docs/module.md`) is untested on a phone: it needs a GSI rooted with KernelSU or Magisk.
+  Check there that the overlays mount, and that qcril accepts lp3-atel-ready's call from root.
+
 - The IMS static overlays were confirmed on single fresh-install runs on one AT&T-network SIM; confirm over more
   fresh installs and on other carriers.
 - `patch.sh` refuses to append a `ro.*` key already in the target `build.prop`, citing "init keeps the first
