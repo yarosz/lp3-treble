@@ -14,7 +14,13 @@ haven't been scrubbed.
 
 - The module form (`docs/module.md`) is untested on a phone: it needs a GSI rooted with KernelSU or Magisk.
   Check there that the overlays mount, and that qcril accepts lp3-atel-ready's call from root.
-
+- On T-Mobile's default APN (`fast.t-mobile.com`, IPV6 or IPV4V6) the GSI gets working IPv6 and NAT64
+  (`64:ff9b::/96` reachable, DNS64 answers), but the modem also puts an IPv4 address from 192.0.0.0/27 on the
+  data interface with a default route. Android sees IPv4, so its CLAT (clatd) never starts, yet IPv4 through
+  that address gets no replies (a TCP connect succeeds, then an HTTP request times out; ping fails). Stock LightOS
+  avoids this by using an IPv4 APN. Find out why the modem's IPv4 path is dead on the GSI, or stop the modem
+  offering IPv4 on this APN so Android's CLAT runs. Until then,
+  `scripts/apn/set-apn.sh lightspeed` switches to an IPv4 APN (verified: native IPv4, HTTP works).
 - The IMS static overlays were confirmed on single fresh-install runs on one AT&T-network SIM; confirm over more
   fresh installs and on other carriers.
 - `patch.sh` refuses to append a `ro.*` key already in the target `build.prop`, citing "init keeps the first
