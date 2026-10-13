@@ -83,6 +83,8 @@ The pack was tested on MisterZtr's LineageOS 23.2 GSI. If you use another GSI bu
 
 6. In the GSI, install the Qualcomm IMS app from phh's Treble settings (IMS section).
 7. Reboot to LightOS, then repeat step 5. VoLTE is available from this boot on.
+8. In the GSI, turn on mobile data (it starts off for a SIM new to the GSI). On US Mobile, also set the APN:
+   `scripts/apn/set-apn.sh darkstar` or `lightspeed` ([why](docs/apn.md)).
 
 For options, label rules and AVB footer handling, see the [`patch-gsi.sh` reference](docs/patch-gsi.md).
 
