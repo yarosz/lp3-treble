@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- EXPERIMENTAL, off by default (LP3_EXPERIMENTAL=1). Static RRO on the framework: Wi-Fi Calling set up the way
+     stock firmware does it, with Qualcomm's IWLAN service from /vendor. Not yet seen to make a Wi-Fi call. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.github.yarosz.lp3treble.overlay.wfc">
+    <overlay android:targetPackage="android" android:isStatic="true" android:priority="201" />
+    <application android:hasCode="false" />
+</manifest>

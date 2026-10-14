@@ -15,7 +15,7 @@ haven't been scrubbed.
 
 - Wi-Fi Calling: stock firmware sets the framework's WLAN data, WLAN network and qualified-networks services to
   Qualcomm's `vendor.qti.iwlan` (in /vendor) through a Qualcomm overlay in /product, which a GSI replaces;
-  `overlays/framework` restores that. On the tested line (US Mobile, T-Mobile network) a "Wi-Fi only" call fails
+  `overlays-experimental/wfc` (off by default, `LP3_EXPERIMENTAL=1`) restores that. On the tested line (US Mobile, T-Mobile network) a "Wi-Fi only" call fails
   the same way on stock LightOS and on the GSI ("Cellular network not available"), so the line itself doesn't get
   Wi-Fi Calling (carrier provisioning or an E911 address, to check). Needs a carrier where stock LightOS does Wi-Fi
   Calling. Side note: Qualcomm's `.qtidataservices` (CNE) crashed once on the GSI with

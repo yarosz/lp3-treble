@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Stock firmware sets these in a Qualcomm overlay in /product, which a GSI replaces: the device supports
+         Wi-Fi Calling, and Qualcomm's IWLAN service in /vendor (vendor.qti.iwlan) provides the WLAN data and network
+         services and picks the network for each data type, instead of AOSP's iwlan and QNS. -->
+    <bool name="config_device_wfc_ims_available">true</bool>
+    <string name="config_qualified_networks_service_package" translatable="false">vendor.qti.iwlan</string>
+    <string name="config_wlan_data_service_package" translatable="false">vendor.qti.iwlan</string>
+    <string name="config_wlan_network_service_package" translatable="false">vendor.qti.iwlan</string>
+    <bool name="config_enable_iwlan_handover_policy">false</bool>
+    <bool name="config_enhanced_iwlan_handover_check">false</bool>
+</resources>

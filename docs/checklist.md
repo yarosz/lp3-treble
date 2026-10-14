@@ -123,9 +123,14 @@ density 320. All PASS.
 | GPS | PASS | fix in about 20 s indoors, 13 satellites (GPS + Galileo, including L5), accuracy about 4 m |
 | NFC | PASS | read an NTAG213 emulated by a Flipper Zero; Android opened the tag's URL |
 | Bluetooth | PASS | found nearby devices; paired with a Flipper Zero (LE) and AirPods (classic) |
-| Auto-brightness | PASS with `overlays/framework` | stock LightOS's curve; covering the sensor (12 lux) dimmed the screen to 8 %, uncovering it (about 300 lux) brought it back to 100 % |
-| Wi-Fi Calling | FAIL, same as stock | with `overlays/framework` the GSI matches stock LightOS (switch available, Qualcomm's IWLAN service bound), but in "Wi-Fi only" mode an outgoing call is refused ("Cellular network not available") on both the GSI and stock LightOS, so this line doesn't get Wi-Fi Calling either way |
+| Auto-brightness | PASS (`overlays/framework`) | stock LightOS's curve; covering the sensor (12 lux) dimmed the screen to 8 %, uncovering it (about 300 lux) brought it back to 100 % |
+| Wi-Fi Calling | FAIL, same as stock | with the experimental `overlays-experimental/wfc` the GSI matches stock LightOS (switch available, Qualcomm's IWLAN service bound), but in "Wi-Fi only" mode an outgoing call is refused ("Cellular network not available") on both the GSI and stock LightOS, so this line doesn't get Wi-Fi Calling either way |
 | Bluetooth audio | PASS | AirPods: music (A2DP) and a call with audio both ways (headset microphone) |
+
+Regression check with the experimental Wi-Fi Calling overlay installed (Qualcomm's IWLAN service picking the
+network for every data type), Wi-Fi Calling on, preference "Call over mobile network": VoLTE registered, call in
+(features=64), SMS in and out, mobile data validated. All PASS. With the preference set to "Wi-Fi only" on a line
+that has no Wi-Fi Calling, calls and texts are refused, which is what that setting does on stock LightOS too.
 
 ## Known issues
 
@@ -144,7 +149,8 @@ density 320. All PASS.
   LightOS behaves the same on that APN and ships an IPv4 APN instead. `scripts/apn/set-apn.sh lightspeed`.
 - A SIM that is new to the GSI starts with mobile data off.
 - Wi-Fi Calling didn't work on the tested line (US Mobile, T-Mobile network), on stock LightOS or on the GSI.
-  The pack sets the GSI up the way stock is (Qualcomm's IWLAN service); results on other carriers are welcome.
+  An experimental overlay, off by default (`LP3_EXPERIMENTAL=1`), sets the GSI up the way stock is (Qualcomm's
+  IWLAN service); results on other carriers are welcome.
 - The shutter button doesn't take photos in the camera app: it keeps vandamd/light-guide's mapping.
 - Not tested yet: uninstalling the pack from a full flash other than by restoring stock partitions; carriers
   other than US Mobile.

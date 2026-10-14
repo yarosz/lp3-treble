@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Static RRO on the framework: device capabilities the GSI's defaults leave off on the LP3. -->
+<!-- Static RRO on the framework: auto-brightness, which the GSI's defaults leave off on the LP3. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.yarosz.lp3treble.overlay.framework">
     <overlay android:targetPackage="android" android:isStatic="true" android:priority="200" />
