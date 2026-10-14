@@ -22,6 +22,14 @@
         <item>200</item>
         <item>255</item>
     </integer-array>
-    <!-- The device can do Wi-Fi Calling; whether it is offered still depends on the carrier config. -->
+    <!-- Wi-Fi Calling. Stock firmware sets these in a Qualcomm overlay in /product, which a GSI replaces: the
+         device supports it, and Qualcomm's IWLAN service in /vendor (vendor.qti.iwlan) provides the WLAN data and
+         network services and picks the network for IMS, instead of AOSP's iwlan and QNS. Whether Wi-Fi Calling is
+         offered still depends on the carrier config. -->
     <bool name="config_device_wfc_ims_available">true</bool>
+    <string name="config_qualified_networks_service_package" translatable="false">vendor.qti.iwlan</string>
+    <string name="config_wlan_data_service_package" translatable="false">vendor.qti.iwlan</string>
+    <string name="config_wlan_network_service_package" translatable="false">vendor.qti.iwlan</string>
+    <bool name="config_enable_iwlan_handover_policy">false</bool>
+    <bool name="config_enhanced_iwlan_handover_check">false</bool>
 </resources>

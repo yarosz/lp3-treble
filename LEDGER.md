@@ -13,10 +13,13 @@ haven't been scrubbed.
 
 ## Open items
 
-- Wi-Fi Calling: `overlays/framework` makes the switch appear, but IMS never moves to Wi-Fi. In "Wi-Fi only"
-  mode QNS never selects IWLAN for IMS and the phone makes no ePDG attempt. Look at the QNS / carrier config for
-  WFC on this network, and test on an AT&T-network line too.
-
+- Wi-Fi Calling: stock firmware sets the framework's WLAN data, WLAN network and qualified-networks services to
+  Qualcomm's `vendor.qti.iwlan` (in /vendor) through a Qualcomm overlay in /product, which a GSI replaces;
+  `overlays/framework` restores that. On the tested line (US Mobile, T-Mobile network) a "Wi-Fi only" call fails
+  the same way on stock LightOS and on the GSI ("Cellular network not available"), so the line itself doesn't get
+  Wi-Fi Calling (carrier provisioning or an E911 address, to check). Needs a carrier where stock LightOS does Wi-Fi
+  Calling. Side note: Qualcomm's `.qtidataservices` (CNE) crashed once on the GSI with
+  `IllegalArgumentException: NetworkCallback was not registered` in `DataCallAgent.tearDownDataCall`.
 - The module form (`docs/module.md`) is untested on a phone: it needs a GSI rooted with KernelSU or Magisk.
   Check there that the overlays mount, and that qcril accepts lp3-atel-ready's call from root.
 - On T-Mobile's default APN (`fast.t-mobile.com`, IPV6 or IPV4V6), IPv6 and NAT64 work (`64:ff9b::/96`
