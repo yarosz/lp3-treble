@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hardware key bitmask (lineageos DeviceKeysConstants): VOLUME 64 + CAMERA 32. -->
+    <integer name="config_deviceHardwareKeys">96</integer>
+    <integer name="config_deviceHardwareWakeKeys">64</integer>
+</resources>
