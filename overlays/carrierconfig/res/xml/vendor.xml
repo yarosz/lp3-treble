@@ -15,4 +15,14 @@
         <boolean name="editable_enhanced_4g_lte_bool" value="false" />
         <boolean name="hide_enhanced_4g_lte_bool" value="true" />
     </carrier_config>
+    <!-- Carrier name for MVNOs on T-Mobile's network (carrier id 1), e.g. US Mobile: their SIMs carry T-Mobile's SPN
+         and T-Mobile's carrier config forces the name "T-Mobile". Show the name the network sends instead, as
+         stock LightOS does: the newer display-name resolver honours the PLMN display condition; the legacy path
+         only reads the SIM's own condition. A real T-Mobile SIM still shows "T-Mobile" (that's what its network
+         sends). Verified on a US Mobile line on T-Mobile's network. -->
+    <carrier_config cid="1">
+        <boolean name="enable_carrier_display_name_resolver_bool" value="true" />
+        <boolean name="carrier_name_override_bool" value="false" />
+        <int name="spn_display_condition_override_int" value="1" />
+    </carrier_config>
 </carrier_config_list>
