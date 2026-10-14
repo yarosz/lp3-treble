@@ -117,6 +117,20 @@ The shutter mapping differs from light-guide's (27 → RIGHT_BRACKET, 80 → NUM
 also set up, ours applies: Android reads key layouts from `/system` (and `/product`, `/vendor`) before
 light-guide's `/data/system/devices/keylayout`.
 
+### Module, DSU + one-boot root, 2026-10-14
+
+Plain MisterZtr LineageOS 23.2 GSI through DSU, booted with light-guide's ReSukiSU kernel (`fastboot boot`, no
+partition written). No metamodule. Module installed with `ksud module install`, then a reboot.
+
+| Check | Result | Notes |
+|---|---|---|
+| `system.prop` | PASS | Density 480 → 320; default network mode 33 |
+| Incoming-SMS fix (`service.sh`) | PASS | logcat `lp3-atel`: ATEL UI ready sent to both SIM slots |
+| `camera_launch` | PASS | Turned on at first boot and logged |
+| Warning without a metamodule | PASS | "module system/ files are not mounted" logged |
+| Overlays and keylayouts | Not active | Expected without a metamodule |
+| Uninstall (`ksud module uninstall`, reboot) | PASS | Props back to stock, module gone; `camera_launch` stays on |
+
 ### Hardware, DSU, US Mobile on T-Mobile, 2026-10-14
 
 | Item | Result | Evidence |
@@ -148,7 +162,8 @@ that has no Wi-Fi Calling, calls and texts are refused, which is what that setti
 - Without the IMS app the device still reports VoLTE available, so the VoLTE toggle does nothing.
 - The fingerprint enroll screen says the sensor is on the back of the device: the GSI doesn't know the LP3's
   side-key sensor location. Enrolling and unlocking work.
-- The KernelSU / Magisk module is experimental and untested on a phone ([module](module.md)).
+- The KernelSU / Magisk module works only partly without a metamodule: props, SMS fix and `camera_launch`, no
+  overlays or keylayouts. Not tested with a metamodule or with Magisk ([module](module.md)).
 - US Mobile on AT&T needs its `ereseller` APN; the GSI's default AT&T APN never validates.
   `scripts/apn/set-apn.sh darkstar` ([APNs](apn.md)).
 - US Mobile on T-Mobile: on the GSI's default `fast.t-mobile.com` APN, IPv4 gets no replies (IPv6 works). Stock

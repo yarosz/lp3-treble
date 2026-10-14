@@ -9,8 +9,11 @@ Without a metamodule, KernelSU does not mount a module's `system/` directory: th
 then missing, while `system.prop` and the incoming-SMS fix still work. `service.sh` logs a warning (logcat tag
 `lp3-atel`) when it sees the overlays are not mounted.
 
-Status: built from the same files the image form was tested with on the LP3, but **not yet tested as a module**
-(it needs a GSI with KernelSU or Magisk).
+Status: tested on the LP3 with KernelSU (ReSukiSU) and **no metamodule** (2026-10-14, see the
+[checklist](checklist.md)). The props, the incoming-SMS fix and `camera_launch` work, and the module uninstalls
+cleanly. The overlays and keylayouts need a mounting metamodule, which was not tested. vandamd/light-guide's
+installer does not install a metamodule, so on that path the pack's overlays (auto-brightness, VoLTE and IMS
+overlays, the camera-button settings) are missing; the patched image has everything.
 
 | In the module | Image form equivalent |
 |---|---|
