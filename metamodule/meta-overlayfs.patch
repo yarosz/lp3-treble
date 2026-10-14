@@ -1,0 +1,66 @@
+SPDX-License-Identifier: GPL-3.0-only
+lp3-treble patch to KernelSU meta-overlayfs (tiann/KernelSU 926f64d3, userspace/meta-overlayfs). See metamodule/README.md.
+
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -10,10 +10,10 @@
+ anyhow = "1"
+ log = "0.4"
+ env_logger = { version = "0.11", default-features = false }
+-hole-punch = { git = "https://github.com/tiann/hole-punch" }
++hole-punch = { git = "https://github.com/tiann/hole-punch", rev = "11ab7a61bfb98682b72fd7f58a47d8e5d997328e" }
+ 
+ [target.'cfg(any(target_os = "linux", target_os = "android"))'.dependencies]
+-rustix = { git = "https://github.com/Kernel-SU/rustix.git", rev = "4a53fbc7cb7a07cabe87125cc21dbc27db316259", features = ["all-apis"] }
++rustix = { version = "1", features = ["all-apis"] }
+ procfs = "0.17"
+ 
+ [profile.release]
+--- a/metamodule/metainstall.sh
++++ b/metamodule/metainstall.sh
+@@ -13,6 +13,8 @@
+     if ! mountpoint -q "$MNT_DIR" 2>/dev/null; then
+         ui_print "- Mounting modules image"
+         mkdir -p "$MNT_DIR"
++        # lp3-treble: ReSukiSU denies loop writes to system_file; KernelSU relabels module dirs to it.
++        chcon u:object_r:ksu_file:s0 "$IMG_FILE" 2>/dev/null || ui_print "! chcon ksu_file failed on modules.img; the mount may fail"
+         mount -t ext4 -o loop,rw,noatime "$IMG_FILE" "$MNT_DIR" || {
+             abort "! Failed to mount modules image"
+         }
+--- a/metamodule/metamount.sh
++++ b/metamodule/metamount.sh
+@@ -27,6 +27,8 @@
+     mkdir -p "$MNT_DIR"
+ 
+     # Mount the ext4 image
++    # lp3-treble: ReSukiSU denies loop writes to system_file; KernelSU relabels module dirs to it.
++    chcon u:object_r:ksu_file:s0 "$IMG_FILE" 2>/dev/null || log "! chcon ksu_file failed on modules.img; the mount may fail"
+     mount -t ext4 -o loop,rw,noatime "$IMG_FILE" "$MNT_DIR" || {
+         log "ERROR: Failed to mount image"
+         exit 1
+--- a/metamodule/module.prop
++++ b/metamodule/module.prop
+@@ -1,8 +1,7 @@
+ id=meta-overlayfs
+ metamodule=1
+ name=OverlayFS MetaModule
+-version=1.1.0
+-versionCode=1100
++version=1.1.0-lp3treble.1
++versionCode=1101
+ author=KernelSU Developers
+-description=An implementation of a metamodule using OverlayFS for KernelSU
+-updateJson=https://raw.githubusercontent.com/tiann/KernelSU/refs/heads/main/userspace/meta-overlayfs/metamodule/update.json
+\ No newline at end of file
++description=An implementation of a metamodule using OverlayFS for KernelSU (lp3-treble build: ksu_file label for ReSukiSU)
+--- a/src/mount.rs
++++ b/src/mount.rs
+@@ -73,7 +73,7 @@
+             dest.as_ref(),
+             "overlay",
+             MountFlags::empty(),
+-            data,
++            Some(std::ffi::CString::new(data)?.as_c_str()),
+         )?;
+     }
+     Ok(())

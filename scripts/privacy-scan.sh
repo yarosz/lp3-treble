@@ -13,13 +13,24 @@ pattern="($digits)|($phone)|($email)|($mac)"
 
 # This file holds the patterns themselves.
 exclude=(':!scripts/privacy-scan.sh')
+# Cargo.lock's sha256 checksum lines are generated hex with long digit runs: drop only those lines.
+lockfile_checksum=':checksum = "[0-9a-f]{64}"$'
+
+# scan [rev]: matching lines, minus Cargo.lock checksum lines. Fails when anything is left.
+scan() {
+  local hits
+  hits=$(git grep -nIE "$pattern" "$@" -- . "${exclude[@]}" | grep -vE "Cargo\.lock:[0-9]+$lockfile_checksum" || true)
+  [ -z "$hits" ] && return 0
+  printf '%s\n' "$hits"
+  return 1
+}
 
 status=0
 if [ $# -eq 0 ]; then
-  git grep -nIE "$pattern" -- . "${exclude[@]}" && status=1
+  scan || status=1
 else
   for rev in "$@"; do
-    git grep -nIE "$pattern" "$rev" -- . "${exclude[@]}" && status=1
+    scan "$rev" || status=1
   done
 fi
 

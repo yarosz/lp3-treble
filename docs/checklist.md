@@ -131,6 +131,18 @@ partition written). No metamodule. Module installed with `ksud module install`, 
 | Overlays and keylayouts | Not active | Expected without a metamodule |
 | Uninstall (`ksud module uninstall`, reboot) | PASS | Density back to 480, module directory gone; `camera_launch` stays on |
 
+With our [meta-overlayfs build](../metamodule/README.md) (`1.1.0-lp3treble.1`), on fresh DSU userdata: metamodule
+installed, reboot, module installed, reboot. No manual step. The metamodule scripts gained a log line for a
+failed `chcon` after this test; the binary is the tested one.
+
+| Check | Result | Notes |
+|---|---|---|
+| Metamodule image mount | PASS | `modules.img` labelled `ksu_file` by the patched scripts; overlay mounted on `/system` |
+| Overlays | PASS | All five lp3-treble overlays enabled (`cmd overlay list`) |
+| Keylayouts | PASS | `/system/usr/keylayout/gpio-keys.kl` and `Pixart_pat9126ja.kl` in use (`dumpsys input`) |
+| Props, `camera_launch`, SMS helper | PASS / PASS / Runs | As above |
+| Unpatched meta-overlayfs | FAIL | Image mount "I/O error": SELinux denies the loop device writes to `system_file` |
+
 ### Hardware, DSU, US Mobile on T-Mobile, 2026-10-14
 
 | Item | Result | Evidence |
@@ -162,9 +174,9 @@ that has no Wi-Fi Calling, calls and texts are refused, which is what that setti
 - Without the IMS app the device still reports VoLTE available, so the VoLTE toggle does nothing.
 - The fingerprint enroll screen says the sensor is on the back of the device: the GSI doesn't know the LP3's
   side-key sensor location. Enrolling and unlocking work.
-- With KernelSU and no metamodule, the module applies only its props, the SMS helper and `camera_launch`: no
-  overlays or keylayouts. Not tested: with a metamodule, with Magisk, and incoming SMS on the module form
-  ([module](module.md)).
+- On KernelSU the module needs our meta-overlayfs build for its overlays and keylayouts; without a metamodule
+  it applies only its props, the SMS helper and `camera_launch`. Not tested on the module form: VoLTE calls,
+  incoming SMS with the screen off, and Magisk ([module](module.md)).
 - US Mobile on AT&T needs its `ereseller` APN; the GSI's default AT&T APN never validates.
   `scripts/apn/set-apn.sh darkstar` ([APNs](apn.md)).
 - US Mobile on T-Mobile: on the GSI's default `fast.t-mobile.com` APN, IPv4 gets no replies (IPv6 works). Stock
