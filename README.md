@@ -45,7 +45,7 @@ Never wipe the LP3 with `fastboot -w`: the phone then stops at "Can't load Andro
 | Part | What it does |
 |---|---|
 | [`atel/`](atel/README.md) (`lp3-atel-ready`) | Delivers incoming SMS while the screen is off |
-| `overlays/carrierconfig` | Enables VoLTE for AT&T SIMs (310/280, 310/410); shows the network's name (e.g. US Mobile) for SIMs on T-Mobile's network |
+| `overlays/carrierconfig` | Enables VoLTE for AT&T SIMs (310/280, 310/410); shows the network name (e.g. US Mobile) for SIMs identified as T-Mobile US |
 | `overlays/ims-caf`, `overlays/ims-caf-framework` | Brings up VoLTE on the first boot after you install the IMS app ([why](docs/ims-overlays.md)) |
 | `overlays/framework` | Turns on auto-brightness, with stock LightOS's curve |
 | `props/product.prop` | Sets display density 320 and NR/LTE/GSM/WCDMA as the default network mode |

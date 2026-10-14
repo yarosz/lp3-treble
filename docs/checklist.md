@@ -106,11 +106,12 @@ credential unlocking", or it refuses user verification. KeePassDX asks once to t
 
 ### Carrier name, DSU, US Mobile on T-Mobile, 2026-10-14
 
-Stock LightOS shows "US Mobile" (the name the network sends); the GSI showed "T-Mobile" (the SIM's SPN, forced by
-T-Mobile's carrier config). With `overlays/carrierconfig` (carrier id 1: display-name resolver on, no name
-override, PLMN display condition), the quick-settings shade and the subscription carrier name show "US Mobile".
-PASS. The SIM label in Settings > SIMs (user-editable, set once from the SIM) still reads "T-Mobile". Not tested:
-a T-Mobile-branded SIM (expected to keep "T-Mobile") and other MVNOs on T-Mobile's network.
+Stock LightOS shows "US Mobile"; the GSI showed "T-Mobile" (the SIM's SPN, and T-Mobile's carrier config name).
+With `overlays/carrierconfig` (SIMs identified as carrier id 1: display-name resolver on, PLMN-only display
+condition), the quick-settings shade and the subscription carrier name show "US Mobile", the PLMN name. PASS.
+The SIM label in Settings > SIMs (user-editable, set once from the SIM) still reads "T-Mobile". Not tested: a
+T-Mobile-branded SIM (expected to keep "T-Mobile"), other carriers' SIMs identified as T-Mobile, roaming, and
+Wi-Fi Calling, where the name is expected to read "T-Mobile" as before.
 
 ### Keys and display, DSU, 2026-10-14
 
