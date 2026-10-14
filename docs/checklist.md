@@ -107,7 +107,9 @@ credential unlocking", or it refuses user verification. KeePassDX asks once to t
 ### Keys and display, DSU, 2026-10-14
 
 Same mapping as vandamd/light-guide (`keylayout/`). Scroll wheel (scancodes 19/20) → brightness up/down; wheel
-press (66) → F8; shutter half press (80) → NUMPAD_2, full press (27) → RIGHT_BRACKET; HOME (102) → home screen.
+press (66) → F8; HOME (102) → home screen. The shutter is a camera button: half press (80) → FOCUS, full press
+(27) → CAMERA (retested 2026-10-14 with `camera_launch` on: a long full press from home opens the camera; in
+Aperture a half press focuses and a full press takes the photo).
 Volume up (gpio-keys 115) and volume down (`pmic_resin`, Android's generic layout) change the volume. Display
 density 320. All PASS.
 
@@ -151,6 +153,9 @@ that has no Wi-Fi Calling, calls and texts are refused, which is what that setti
 - Wi-Fi Calling didn't work on the tested line (US Mobile, T-Mobile network), on stock LightOS or on the GSI.
   An experimental overlay, off by default (`LP3_EXPERIMENTAL=1`), sets the GSI up the way stock is (Qualcomm's
   IWLAN service); results on other carriers are welcome.
-- The shutter button doesn't take photos in the camera app: it keeps vandamd/light-guide's mapping.
+- The shutter opens the camera only on a long press (about 1.5 s), and only with LineageOS's `camera_launch`
+  setting on (README step 9; the module sets it). The first time, Android may ask which camera app to use.
+- In Aperture, a full shutter press takes the photo when you release it, not as you press (Aperture's own key
+  handling).
 - Not tested yet: uninstalling the pack from a full flash other than by restoring stock partitions; carriers
   other than US Mobile.

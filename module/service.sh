@@ -11,6 +11,12 @@ POLL=2
 
 until [ "$(getprop sys.boot_completed)" = 1 ]; do sleep 5; done
 
+# The shutter is a camera key, but LineageOS only launches the camera on a long press with its camera_launch
+# setting on, which has no overlayable default. Turn it on once; a value the user set later is left alone.
+if ! content query --uri content://lineagesettings/system --where "name='camera_launch'" | grep -q value=; then
+  content insert --uri content://lineagesettings/system --bind name:s:camera_launch --bind value:s:1
+fi
+
 # Not a Qualcomm RIL: nothing to do, and never loop.
 if [ ! -e /vendor/bin/hw/qcrilNrd ] && [ ! -e /vendor/bin/qcrild ]; then
   log -t "$TAG" "no qcril binary; lp3-atel-ready not needed"
