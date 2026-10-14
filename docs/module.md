@@ -3,17 +3,19 @@
 `scripts/build-module.sh` builds `out/lp3-treble-module-<version>.zip` from the image form's payload
 (`build-payload.sh`), so both forms ship the same files. Install it from the Magisk app, or from the KernelSU app
 with a mounting metamodule installed (such as meta-overlayfs), then reboot. Remove it from the same app to
-uninstall; nothing is left behind.
+uninstall; nothing is left behind except the `camera_launch` setting (below).
 
 Without a metamodule, KernelSU does not mount a module's `system/` directory: the overlays and keylayouts are
-then missing, while `system.prop` and the incoming-SMS fix still work. `service.sh` logs a warning (logcat tag
+then missing, while `system.prop`, the incoming-SMS helper and `camera_launch` still apply. `service.sh` logs a warning (logcat tag
 `lp3-atel`) when it sees the overlays are not mounted.
 
 Status: tested on the LP3 with KernelSU (ReSukiSU) and **no metamodule** (2026-10-14, see the
-[checklist](checklist.md)). The props, the incoming-SMS fix and `camera_launch` work, and the module uninstalls
-cleanly. The overlays and keylayouts need a mounting metamodule, which was not tested. vandamd/light-guide's
-installer does not install a metamodule, so on that path the pack's overlays (auto-brightness, VoLTE and IMS
-overlays, the camera-button settings) are missing; the patched image has everything.
+[checklist](checklist.md)). The props and `camera_launch` apply, `lp3-atel-ready` runs and sends its call to both
+SIM slots, and the module uninstalls cleanly. Not tested: incoming SMS with the screen off on the module form,
+the overlays and keylayouts with a mounting metamodule, and Magisk. vandamd/light-guide's installer (as of its
+`flash.js` when this was written) installs no metamodule, so on that path the pack's overlays (auto-brightness,
+VoLTE and IMS overlays, the camera-button settings) and keylayouts are missing, and light-guide's own keylayouts
+apply instead (its shutter mapping differs). The patched image has everything.
 
 | In the module | Image form equivalent |
 |---|---|
@@ -42,5 +44,5 @@ It loads the jar from the module directory, so the SMS fix does not depend on `s
 
 It runs as root in the root manager's SELinux domain, which can reach the telephony HAL, so the module ships no
 SELinux policy. The image form runs it as the `radio` user in the narrow `lp3_atel` domain, because init starts
-it there without a root manager. Only the `radio` identity has been tested on the phone; that qcril accepts the
-call from root is expected but not yet verified.
+it there without a root manager. Only the `radio` identity has been tested end to end; from root, the call is sent
+(the module test above), but the call is oneway, so that qcril accepts it is not yet verified.

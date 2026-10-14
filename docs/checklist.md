@@ -125,11 +125,11 @@ partition written). No metamodule. Module installed with `ksud module install`, 
 | Check | Result | Notes |
 |---|---|---|
 | `system.prop` | PASS | Density 480 → 320; default network mode 33 |
-| Incoming-SMS fix (`service.sh`) | PASS | logcat `lp3-atel`: ATEL UI ready sent to both SIM slots |
+| Incoming-SMS helper (`service.sh`) | Runs | logcat `lp3-atel`: ATEL UI ready sent to both SIM slots (oneway call, no acknowledgement); SMS in with the screen off not tested |
 | `camera_launch` | PASS | Turned on at first boot and logged |
 | Warning without a metamodule | PASS | "module system/ files are not mounted" logged |
 | Overlays and keylayouts | Not active | Expected without a metamodule |
-| Uninstall (`ksud module uninstall`, reboot) | PASS | Props back to stock, module gone; `camera_launch` stays on |
+| Uninstall (`ksud module uninstall`, reboot) | PASS | Density back to 480, module directory gone; `camera_launch` stays on |
 
 ### Hardware, DSU, US Mobile on T-Mobile, 2026-10-14
 
@@ -162,8 +162,9 @@ that has no Wi-Fi Calling, calls and texts are refused, which is what that setti
 - Without the IMS app the device still reports VoLTE available, so the VoLTE toggle does nothing.
 - The fingerprint enroll screen says the sensor is on the back of the device: the GSI doesn't know the LP3's
   side-key sensor location. Enrolling and unlocking work.
-- The KernelSU / Magisk module works only partly without a metamodule: props, SMS fix and `camera_launch`, no
-  overlays or keylayouts. Not tested with a metamodule or with Magisk ([module](module.md)).
+- With KernelSU and no metamodule, the module applies only its props, the SMS helper and `camera_launch`: no
+  overlays or keylayouts. Not tested: with a metamodule, with Magisk, and incoming SMS on the module form
+  ([module](module.md)).
 - US Mobile on AT&T needs its `ereseller` APN; the GSI's default AT&T APN never validates.
   `scripts/apn/set-apn.sh darkstar` ([APNs](apn.md)).
 - US Mobile on T-Mobile: on the GSI's default `fast.t-mobile.com` APN, IPv4 gets no replies (IPv6 works). Stock
