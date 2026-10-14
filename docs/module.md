@@ -18,10 +18,13 @@ Status: built from the same files the image form was tested with on the LP3, but
 | `system/usr/keylayout/*.kl` | same files |
 | `system/product/framework/lp3-atel-ready.jar` | same file |
 | `system.prop` | `props/product.prop`, appended to `/product/etc/build.prop` |
-| `service.sh` | `atel/lp3-atel-ready.rc` + launcher + `lp3_atel` SELinux domain |
+| `service.sh` | `atel/lp3-atel-ready.rc` + launcher + `lp3_atel` SELinux domain; README step 9 (`camera_launch`) |
 
 Release builds set `MODULE_VERSION` and `MODULE_VERSION_CODE`. The defaults (`git describe`, commit count) are
 for local builds; a shallow clone gives a low version code, which the root manager reads as a downgrade.
+
+`service.sh` also turns on LineageOS's `camera_launch` setting (the shutter opens the camera) once, for user 0,
+if it was never set. A value the user set is kept, and removing the module leaves the setting as it is.
 
 ## Why lp3-atel-ready runs differently
 

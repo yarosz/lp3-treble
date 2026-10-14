@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Static RRO on LineageOS's platform resources: the LP3 has a hardware camera key (the two-stage shutter), so
-     LineageOS handles KEYCODE_CAMERA/FOCUS. On a GSI that is not LineageOS the target package is absent and
-     this overlay does nothing. -->
+<!-- Static RRO on LineageOS's platform resources: declares the LP3's camera key (the two-stage shutter), which
+     makes Settings > System > Buttons show the Camera button section with its launch-camera switch
+     (camera_launch). The framework's key handling doesn't read this bit. On a GSI that is not LineageOS the
+     target package is absent and this overlay does nothing. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.yarosz.lp3treble.overlay.lineagekeys">
     <overlay android:targetPackage="lineageos.platform" android:isStatic="true" android:priority="200" />

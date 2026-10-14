@@ -1,5 +1,6 @@
 #!/system/bin/sh
-# lp3-treble module: run lp3-atel-ready (atel/README.md) after boot and again whenever a qcril process starts.
+# lp3-treble module: turn on LineageOS's camera_launch once, then run lp3-atel-ready (atel/README.md) after boot
+# and again whenever a qcril process starts.
 # A module cannot add init .rc files (init has parsed them before modules mount), so this late_start service
 # script does what lp3-atel-ready.rc does in the image form. It runs as root in the root manager's own SELinux
 # domain, so it needs no policy of its own.
@@ -13,8 +14,12 @@ until [ "$(getprop sys.boot_completed)" = 1 ]; do sleep 5; done
 
 # The shutter is a camera key, but LineageOS only launches the camera on a long press with its camera_launch
 # setting on, which has no overlayable default. Turn it on once; a value the user set later is left alone.
-if ! content query --uri content://lineagesettings/system --where "name='camera_launch'" | grep -q value=; then
-  content insert --uri content://lineagesettings/system --bind name:s:camera_launch --bind value:s:1
+if content query --uri content://lineagesettings/system --where "name='camera_launch'" | grep -q value=; then
+  log -t "$TAG" "camera_launch already set; kept"
+elif content insert --uri content://lineagesettings/system --bind name:s:camera_launch --bind value:s:1; then
+  log -t "$TAG" "camera_launch turned on"
+else
+  log -t "$TAG" "camera_launch not set (no LineageOS settings provider?)"
 fi
 
 # Not a Qualcomm RIL: nothing to do, and never loop.

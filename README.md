@@ -23,7 +23,7 @@ First target: the unofficial LineageOS GSI by MisterZtr ([MisterZtr/LineageOS_gs
 | `overlays/framework` | Turns on auto-brightness, with stock LightOS's curve |
 | `props/product.prop` | Sets display density 320 and NR/LTE/GSM/WCDMA as the default network mode |
 | `keylayout/` | Maps the scroll wheel, HOME and volume keys (as in vandamd/light-guide), and the shutter as a camera button |
-| `overlays/lineage-keys` | Tells LineageOS the phone has a camera button |
+| `overlays/lineage-keys` | Shows LineageOS's Camera button settings (Settings > System > Buttons) |
 
 The pack comes in two forms built from the same sources: a patched GSI image (below) and a KernelSU / Magisk
 module for a rooted GSI ([module](docs/module.md)).
@@ -88,8 +88,10 @@ The pack was tested on MisterZtr's LineageOS 23.2 GSI. If you use another GSI bu
 7. Reboot to LightOS, then repeat step 5. VoLTE is available from this boot on.
 8. In the GSI, turn on mobile data (it starts off for a SIM new to the GSI). On US Mobile, also set the APN:
    `scripts/apn/set-apn.sh darkstar` or `lightspeed` ([why](docs/apn.md)).
-9. To open the camera with the shutter, turn on LineageOS's camera-button launch (the module does this for you):
+9. To open the camera with the shutter, turn on the launch-camera switch in Settings > System > Buttons >
+   Camera button, or over adb:
    `adb shell content insert --uri content://lineagesettings/system --bind name:s:camera_launch --bind value:s:1`.
+   The module form turns it on for you.
 
 For options, label rules and AVB footer handling, see the [`patch-gsi.sh` reference](docs/patch-gsi.md).
 To replace stock `system` instead of using DSU, see [full flash](docs/full-flash.md). Never wipe the LP3 with
