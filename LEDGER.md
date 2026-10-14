@@ -13,8 +13,9 @@ haven't been scrubbed.
 
 ## Open items
 
-- Wi-Fi Calling: try an overlay that sets `config_device_wfc_ims_available` (the carrier config already allows
-  it on T-Mobile's network). Auto-brightness: a brightness curve for the LP3 display.
+- Wi-Fi Calling: `overlays/framework` makes the switch appear, but IMS never moves to Wi-Fi. In "Wi-Fi only"
+  mode QNS never selects IWLAN for IMS and the phone makes no ePDG attempt. Look at the QNS / carrier config for
+  WFC on this network, and test on an AT&T-network line too.
 
 - The module form (`docs/module.md`) is untested on a phone: it needs a GSI rooted with KernelSU or Magisk.
   Check there that the overlays mount, and that qcril accepts lp3-atel-ready's call from root.

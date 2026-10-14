@@ -122,9 +122,10 @@ density 320. All PASS.
 | Proximity sensor in a call | PASS | screen off at the ear, back on away from it |
 | GPS | PASS | fix in about 20 s indoors, 13 satellites (GPS + Galileo, including L5), accuracy about 4 m |
 | NFC | PASS | read an NTAG213 emulated by a Flipper Zero; Android opened the tag's URL |
-| Bluetooth | PASS (scan and pairing) | found nearby devices, paired with a Flipper Zero over LE; audio over Bluetooth not tested |
-| Auto-brightness | not available | the light sensor is present, but the GSI has no brightness curve for this display |
-| Wi-Fi Calling | not available | the carrier allows it, but the GSI's `config_device_wfc_ims_available` is false |
+| Bluetooth | PASS | found nearby devices; paired with a Flipper Zero (LE) and AirPods (classic) |
+| Auto-brightness | PASS with `overlays/framework` | stock LightOS's curve; covering the sensor (12 lux) dimmed the screen to 8 %, uncovering it (about 300 lux) brought it back to 100 % |
+| Wi-Fi Calling | FAIL | with `overlays/framework` the switch appears and can be turned on, but calls don't go over Wi-Fi: in "Wi-Fi only" mode an outgoing call never connected, and the phone never tried to reach the carrier's Wi-Fi Calling server |
+| Bluetooth audio | PASS | AirPods: music (A2DP) and a call with audio both ways (headset microphone) |
 
 ## Known issues
 
@@ -142,10 +143,8 @@ density 320. All PASS.
 - US Mobile on T-Mobile: on the GSI's default `fast.t-mobile.com` APN, IPv4 gets no replies (IPv6 works). Stock
   LightOS behaves the same on that APN and ships an IPv4 APN instead. `scripts/apn/set-apn.sh lightspeed`.
 - A SIM that is new to the GSI starts with mobile data off.
-- Auto-brightness is unavailable: the GSI has no brightness curve for the LP3's display. Brightness is set by
-  hand (the scroll wheel works).
-- Wi-Fi Calling is unavailable: the GSI's `config_device_wfc_ims_available` is false, so Settings shows no
-  Wi-Fi Calling switch. An overlay could turn it on (not tested).
+- Wi-Fi Calling doesn't work yet (tested on US Mobile's T-Mobile network). The pack turns the Settings switch on,
+  but calls still don't go over Wi-Fi. It may also depend on the carrier.
 - The shutter button doesn't take photos in the camera app: it keeps vandamd/light-guide's mapping.
 - Not tested yet: uninstalling the pack from a full flash other than by restoring stock partitions; carriers
   other than US Mobile.

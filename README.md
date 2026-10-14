@@ -20,6 +20,7 @@ First target: the unofficial LineageOS GSI by MisterZtr ([MisterZtr/LineageOS_gs
 | [`atel/`](atel/README.md) (`lp3-atel-ready`) | Delivers incoming SMS while the screen is off |
 | `overlays/carrierconfig` | Enables VoLTE for AT&T SIMs (310/280, 310/410) |
 | `overlays/ims-caf`, `overlays/ims-caf-framework` | Brings up VoLTE on the first boot after you install the IMS app ([why](docs/ims-overlays.md)) |
+| `overlays/framework` | Turns on auto-brightness (with stock LightOS's curve) and the Wi-Fi Calling switch |
 | `props/product.prop` | Sets display density 320 and NR/LTE/GSM/WCDMA as the default network mode |
 | `keylayout/` | Maps the scroll wheel and the side keys (same mapping as vandamd/light-guide) |
 
