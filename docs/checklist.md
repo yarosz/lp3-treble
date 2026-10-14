@@ -121,11 +121,11 @@ density 320. All PASS.
 | Vibration | PASS | felt; also on volume changes |
 | Proximity sensor in a call | PASS | screen off at the ear, back on away from it |
 | GPS | PASS | fix in about 20 s indoors, 13 satellites (GPS + Galileo, including L5), accuracy about 4 m |
-| NFC | PASS | read an NTAG213 emulated by a Flipper Zero; Android opened the tag's URL |
-| Bluetooth | PASS | found nearby devices; paired with a Flipper Zero (LE) and AirPods (classic) |
+| NFC | PASS | read an emulated NTAG213 tag; Android opened the tag's URL |
+| Bluetooth | PASS | found nearby devices; paired a Bluetooth LE device and Bluetooth earbuds |
 | Auto-brightness | PASS (`overlays/framework`) | stock LightOS's curve; covering the sensor (12 lux) dimmed the screen to 8 %, uncovering it (about 300 lux) brought it back to 100 % |
 | Wi-Fi Calling | FAIL, same as stock | with the experimental `overlays-experimental/wfc` the GSI matches stock LightOS (switch available, Qualcomm's IWLAN service bound), but in "Wi-Fi only" mode an outgoing call is refused ("Cellular network not available") on both the GSI and stock LightOS, so this line doesn't get Wi-Fi Calling either way |
-| Bluetooth audio | PASS | AirPods: music (A2DP) and a call with audio both ways (headset microphone) |
+| Bluetooth audio | PASS | Bluetooth earbuds: music (A2DP) and a headset call with audio both ways |
 
 Regression check with the experimental Wi-Fi Calling overlay installed (Qualcomm's IWLAN service picking the
 network for every data type), Wi-Fi Calling on, preference "Call over mobile network": VoLTE registered, call in

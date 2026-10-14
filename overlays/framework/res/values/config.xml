@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Auto-brightness with the curve stock LightOS uses on this display, read from its display service
-         (SimpleMappingStrategy spline points, no user adjustment: mUserLux -1, adjustment 0). -->
+         (SimpleMappingStrategy spline points, no user adjustment: mUserLux -1, adjustment 0). Config values
+         only, measured on the device; no Light files are copied. -->
     <bool name="config_automatic_brightness_available">true</bool>
     <integer-array name="config_autoBrightnessLevels">
         <item>10</item>
