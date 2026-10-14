@@ -87,10 +87,12 @@ The pack was tested on MisterZtr's LineageOS 23.2 GSI. If you use another GSI bu
    `scripts/apn/set-apn.sh darkstar` or `lightspeed` ([why](docs/apn.md)).
 
 For options, label rules and AVB footer handling, see the [`patch-gsi.sh` reference](docs/patch-gsi.md).
+To replace stock `system` instead of using DSU, see [full flash](docs/full-flash.md) (never `fastboot -w` on the
+LP3).
 
 ## Contributing test results
 
-A per-carrier test checklist comes with the first preview. Never paste IMEI, IMSI, ICCID, EID, phone
+Run the [test checklist](docs/checklist.md) and report your carrier's results in an issue. Never paste IMEI, IMSI, ICCID, EID, phone
 numbers, serial numbers, MAC addresses or account emails into an issue or log. A pre-push hook
 (`.githooks/pre-push`, enable with `git config core.hooksPath .githooks`) rejects them in this repo.
 

@@ -5,22 +5,22 @@ haven't been scrubbed.
 
 ## Now
 
-- Phase: P4 (IMS and carrier configuration), AT&T network first. Nothing to install yet: no release.
-- Done in P3-P4, tested on the LP3 in DSU: keylayouts, density 320, LTE default network mode, CarrierConfig
-  overlay (VoLTE for AT&T SIMs), and `lp3-atel-ready` (incoming SMS with the screen off, `atel/README.md`).
-- Next: the full checklist per network.
+- Phase: P5 (checklist and early preview). Tested on the LP3 with US Mobile on both AT&T and T-Mobile
+  networks: calls, SMS, MMS, data, fingerprint, passkeys, keys, display; installed via DSU and via full flash,
+  with a rollback to stock LightOS ([`docs/checklist.md`](docs/checklist.md)).
+- Next: early-preview release; testers on other carriers.
 
 ## Open items
 
 - The module form (`docs/module.md`) is untested on a phone: it needs a GSI rooted with KernelSU or Magisk.
   Check there that the overlays mount, and that qcril accepts lp3-atel-ready's call from root.
-- On T-Mobile's default APN (`fast.t-mobile.com`, IPV6 or IPV4V6) the GSI gets working IPv6 and NAT64
-  (`64:ff9b::/96` reachable, DNS64 answers), but the modem also puts an IPv4 address from 192.0.0.0/27 on the
-  data interface with a default route. Android sees IPv4, so its CLAT (clatd) never starts, yet IPv4 through
-  that address gets no replies (a TCP connect succeeds, then an HTTP request times out; ping fails). Stock LightOS
-  avoids this by using an IPv4 APN. Find out why the modem's IPv4 path is dead on the GSI, or stop the modem
-  offering IPv4 on this APN so Android's CLAT runs. Until then,
-  `scripts/apn/set-apn.sh lightspeed` switches to an IPv4 APN (verified: native IPv4, HTTP works).
+- On T-Mobile's default APN (`fast.t-mobile.com`, IPV6 or IPV4V6), IPv6 and NAT64 work (`64:ff9b::/96`
+  reachable, DNS64 answers), but the modem also puts an IPv4 address from 192.0.0.0/27 on the data interface
+  with a default route. Android sees IPv4, so its CLAT (clatd) never starts, and IPv4 through that address gets
+  no replies (a TCP connect succeeds, then an HTTP request times out; ping fails). Stock LightOS behaves the same
+  way on that APN (tested); it avoids the problem by shipping an IPv4 APN, and so does
+  `scripts/apn/set-apn.sh lightspeed` (verified: native IPv4, HTTP works). Open: whether the pack should set
+  the IPv4 APN itself.
 - The IMS static overlays were confirmed on single fresh-install runs on one AT&T-network SIM; confirm over more
   fresh installs and on other carriers.
 - `patch.sh` refuses to append a `ro.*` key already in the target `build.prop`, citing "init keeps the first

@@ -38,5 +38,6 @@ Mobile data, or run `adb shell svc data enable`.
 
 On Light Speed's default APN, IPv6 and the carrier's NAT64 work, but IPv4 doesn't: the modem puts its own IPv4
 address (192.0.0.8/27, the 464XLAT range) on the data interface, so Android never starts its own CLAT, and
-IPv4 connections open but get no replies. With the script's IPv4 APN the phone gets a native IPv4 address and
-IPv4 works. Details are an open item in [`LEDGER.md`](../LEDGER.md).
+IPv4 connections open but get no replies. Stock LightOS does the same on that APN; it ships the IPv4 APN
+instead. With the script's IPv4 APN the phone gets a native IPv4 address and IPv4 works. Details are an open
+item in [`LEDGER.md`](../LEDGER.md).
