@@ -155,4 +155,5 @@ pre-push hook
 
 ## License
 
-Apache-2.0. See [`LICENSE`](LICENSE).
+Apache-2.0. See [`LICENSE`](LICENSE). Exception: [`metamodule/`](metamodule/README.md) patches and builds KernelSU's
+meta-overlayfs and is GPL-3.0 ([`metamodule/LICENSE`](metamodule/LICENSE)).
