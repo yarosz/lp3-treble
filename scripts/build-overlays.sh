@@ -3,7 +3,8 @@
 # payload/system/product/overlay/. Needs the Android SDK: build-tools and the android-36 platform. Signed with the
 # debug key by default: preinstalled overlays in /system/product/overlay don't need a platform signature.
 # Usage: scripts/build-overlays.sh
-#   env: ANDROID_HOME, BUILD_TOOLS (dir), PLATFORM (default android-36),
+#   env: LP3_EXPERIMENTAL=1 also builds overlays-experimental/<name>/ (off by default; see docs/checklist.md),
+#        ANDROID_HOME, BUILD_TOOLS (dir), PLATFORM (default android-36),
 #        SIGN_KEYSTORE, SIGN_ALIAS, SIGN_PASS (default: ~/.android/debug.keystore, androiddebugkey, android)
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
@@ -26,7 +27,9 @@ fi
 out=$root/out/overlays
 mkdir -p "$out"
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
-for dir in "$root"/overlays/*/; do
+dirs=("$root"/overlays/*/)
+[ "${LP3_EXPERIMENTAL:-}" != 1 ] || dirs+=("$root"/overlays-experimental/*/)
+for dir in "${dirs[@]}"; do
   name=$(basename "$dir"); apk=$out/lp3-treble-$name.apk
   rm -f "$apk" "$apk.idsig" "$tmp"/*
   "$bt/aapt2" compile --dir "${dir}res" -o "$tmp/res.zip"

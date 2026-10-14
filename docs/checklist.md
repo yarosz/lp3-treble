@@ -65,7 +65,9 @@ The same line, moved by a network transfer.
 
 ### US Mobile on T-Mobile, full flash, 2026-10-14
 
-The same image flashed to `system_a`, then rolled back to stock LightOS ([full flash](full-flash.md)).
+The same image flashed to `system_a`, then rolled back to stock LightOS ([full flash](full-flash.md)). Only the
+T-Mobile network was tested on the full flash. The AT&T-network results above come from DSU; they should carry
+over, because both installs run the same image on the same vendor, modem and kernel.
 
 | Item | Result | Evidence |
 |---|---|---|
@@ -106,7 +108,29 @@ credential unlocking", or it refuses user verification. KeePassDX asks once to t
 
 Same mapping as vandamd/light-guide (`keylayout/`). Scroll wheel (scancodes 19/20) → brightness up/down; wheel
 press (66) → F8; shutter half press (80) → NUMPAD_2, full press (27) → RIGHT_BRACKET; HOME (102) → home screen.
-Display density 320. All PASS.
+Volume up (gpio-keys 115) and volume down (`pmic_resin`, Android's generic layout) change the volume. Display
+density 320. All PASS.
+
+### Hardware, DSU, US Mobile on T-Mobile, 2026-10-14
+
+| Item | Result | Evidence |
+|---|---|---|
+| Back camera, photo with flash | PASS | LineageOS Aperture; 12 MP photo, flash fired |
+| Front camera | PASS | preview and photo |
+| Flashlight | PASS | quick settings tile |
+| Vibration | PASS | felt; also on volume changes |
+| Proximity sensor in a call | PASS | screen off at the ear, back on away from it |
+| GPS | PASS | fix in about 20 s indoors, 13 satellites (GPS + Galileo, including L5), accuracy about 4 m |
+| NFC | PASS | read an emulated NTAG213 tag; Android opened the tag's URL |
+| Bluetooth | PASS | found nearby devices; paired a Bluetooth LE device and Bluetooth earbuds |
+| Auto-brightness | PASS (`overlays/framework`) | stock LightOS's curve; covering the sensor (12 lux) dimmed the screen to 8 %, uncovering it (about 300 lux) brought it back to 100 % |
+| Wi-Fi Calling | FAIL, same as stock | with the experimental `overlays-experimental/wfc` the GSI matches stock LightOS (switch available, Qualcomm's IWLAN service bound), but in "Wi-Fi only" mode an outgoing call is refused ("Cellular network not available") on both the GSI and stock LightOS, so this line doesn't get Wi-Fi Calling either way |
+| Bluetooth audio | PASS | Bluetooth earbuds: music (A2DP) and a headset call with audio both ways |
+
+Regression check with the experimental Wi-Fi Calling overlay installed (Qualcomm's IWLAN service picking the
+network for every data type), Wi-Fi Calling on, preference "Call over mobile network": VoLTE registered, call in
+(features=64), SMS in and out, mobile data validated. All PASS. With the preference set to "Wi-Fi only" on a line
+that has no Wi-Fi Calling, calls and texts are refused, which is what that setting does on stock LightOS too.
 
 ## Known issues
 
@@ -124,5 +148,9 @@ Display density 320. All PASS.
 - US Mobile on T-Mobile: on the GSI's default `fast.t-mobile.com` APN, IPv4 gets no replies (IPv6 works). Stock
   LightOS behaves the same on that APN and ships an IPv4 APN instead. `scripts/apn/set-apn.sh lightspeed`.
 - A SIM that is new to the GSI starts with mobile data off.
+- Wi-Fi Calling didn't work on the tested line (US Mobile, T-Mobile network), on stock LightOS or on the GSI.
+  An experimental overlay, off by default (`LP3_EXPERIMENTAL=1`), sets the GSI up the way stock is (Qualcomm's
+  IWLAN service); results on other carriers are welcome.
+- The shutter button doesn't take photos in the camera app: it keeps vandamd/light-guide's mapping.
 - Not tested yet: uninstalling the pack from a full flash other than by restoring stock partitions; carriers
   other than US Mobile.

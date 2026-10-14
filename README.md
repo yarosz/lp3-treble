@@ -6,7 +6,7 @@ image. The stock vendor and kernel stay unchanged.
 
 First target: the unofficial LineageOS GSI by MisterZtr ([MisterZtr/LineageOS_gsi](https://github.com/MisterZtr/LineageOS_gsi)).
 
-**Status: work in progress, no release yet. You can build a test image yourself.** Progress is in
+**Status: early preview ([`v0.1.0-preview.1`](https://github.com/yarosz/lp3-treble/releases/tag/v0.1.0-preview.1)). You build the image yourself.** Progress is in
 [`LEDGER.md`](LEDGER.md).
 
 > Unaffiliated with Light. "Light Phone" is Light's trademark. This project is not endorsed by Light,
@@ -20,6 +20,7 @@ First target: the unofficial LineageOS GSI by MisterZtr ([MisterZtr/LineageOS_gs
 | [`atel/`](atel/README.md) (`lp3-atel-ready`) | Delivers incoming SMS while the screen is off |
 | `overlays/carrierconfig` | Enables VoLTE for AT&T SIMs (310/280, 310/410) |
 | `overlays/ims-caf`, `overlays/ims-caf-framework` | Brings up VoLTE on the first boot after you install the IMS app ([why](docs/ims-overlays.md)) |
+| `overlays/framework` | Turns on auto-brightness, with stock LightOS's curve |
 | `props/product.prop` | Sets display density 320 and NR/LTE/GSM/WCDMA as the default network mode |
 | `keylayout/` | Maps the scroll wheel and the side keys (same mapping as vandamd/light-guide) |
 
@@ -34,7 +35,8 @@ module for a rooted GSI ([module](docs/module.md)).
 - LP3 keys (scroll wheel, shutter, HOME) and display size.
 - Install and clean uninstall, via Dynamic System Updates (DSU) and via full flash.
 
-Not in scope: camera, NFC, Light's own Tools on the GSI, eSIM management, Wi-Fi Calling, building a
+Not in scope: Light's own Tools on the GSI, eSIM management, Wi-Fi Calling (an experimental overlay exists:
+`overlays-experimental/wfc`, built with `LP3_EXPERIMENTAL=1`), building a
 kernel or any Android image. This repo ships only overlays, props and its own code, never vendor blobs or
 Light's proprietary files.
 

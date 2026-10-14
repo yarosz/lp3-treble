@@ -8,10 +8,18 @@ haven't been scrubbed.
 - Phase: P5 (checklist and early preview). Tested on the LP3 with US Mobile on both AT&T and T-Mobile
   networks: calls, SMS, MMS, data, fingerprint, passkeys, keys, display; installed via DSU and via full flash,
   with a rollback to stock LightOS ([`docs/checklist.md`](docs/checklist.md)).
-- Next: early-preview release; testers on other carriers.
+- Early preview released: `v0.1.0-preview.1` (pre-release). Next: testers on Verizon, physical SIMs and carriers
+  other than US Mobile.
 
 ## Open items
 
+- Wi-Fi Calling: stock firmware sets the framework's WLAN data, WLAN network and qualified-networks services to
+  Qualcomm's `vendor.qti.iwlan` (in /vendor) through a Qualcomm overlay in /product, which a GSI replaces;
+  `overlays-experimental/wfc` (off by default, `LP3_EXPERIMENTAL=1`) restores that. On the tested line (US Mobile, T-Mobile network) a "Wi-Fi only" call fails
+  the same way on stock LightOS and on the GSI ("Cellular network not available"), so the line itself doesn't get
+  Wi-Fi Calling (carrier provisioning or an E911 address, to check). Needs a carrier where stock LightOS does Wi-Fi
+  Calling. Side note: Qualcomm's `.qtidataservices` (CNE) crashed once on the GSI with
+  `IllegalArgumentException: NetworkCallback was not registered` in `DataCallAgent.tearDownDataCall`.
 - The module form (`docs/module.md`) is untested on a phone: it needs a GSI rooted with KernelSU or Magisk.
   Check there that the overlays mount, and that qcril accepts lp3-atel-ready's call from root.
 - On T-Mobile's default APN (`fast.t-mobile.com`, IPV6 or IPV4V6), IPv6 and NAT64 work (`64:ff9b::/96`
