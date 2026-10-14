@@ -1,6 +1,7 @@
-# LP3 gpio-keys. Same mapping as vandamd/light-guide.
-key 27    RIGHT_BRACKET
+# LP3 gpio-keys. Wheel press, HOME and volume as in vandamd/light-guide; the two-stage shutter is a camera
+# button: half press focuses, full press opens the camera (and takes the photo inside it).
+key 27    CAMERA
 key 66    F8
-key 80    NUMPAD_2
+key 80    FOCUS
 key 102   HOME
 key 115   VOLUME_UP

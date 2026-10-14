@@ -25,6 +25,15 @@ line=\$(sed -n "\${n}p" "$t/pids")
 [ "\$n" -le "\$(wc -l <"$t/pids")" ] || kill -TERM \$PPID
 [ "\$line" = - ] || echo "\$line"
 EOF
+  # LineageOS settings: $t/camera_launch holds the stored value; no file = unset.
+  cat >"$t/bin/content" <<EOF
+#!/bin/sh
+case "\$1" in
+  query) [ -f "$t/camera_launch" ] && echo "Row: 0 _id=1, name=camera_launch, value=\$(cat "$t/camera_launch")" ;;
+  insert) echo "\${7#value:s:}" >"$t/camera_launch" ;;
+esac
+EOF
+  [ -z "${CAM:-}" ] || echo "$CAM" >"$t/camera_launch"
   printf '#!/bin/sh\necho "$*" >>"%s/log"\n' "$t" >"$t/bin/log"
   printf '#!/bin/sh\n/bin/sleep 0.5\n' >"$t/bin/sleep"
   printf '#!/bin/sh\necho start >>"%s/starts"\n' "$t" >"$t/system/bin/app_process"
@@ -38,6 +47,10 @@ EOF
   local got=0
   [ -f "$t/starts" ] && got=$(wc -l <"$t/starts" | tr -d ' ')
   if [ "$got" = "$want" ]; then echo "ok   $name ($got)"; else echo "FAIL $name: want $want starts, got $got"; fail=1; fi
+  if [ -n "${CAM_WANT:-}" ]; then
+    local cam; cam=$(cat "$t/camera_launch" 2>/dev/null || echo unset)
+    if [ "$cam" = "$CAM_WANT" ]; then echo "ok   $name: camera_launch=$cam"; else echo "FAIL $name: camera_launch=$cam, want $CAM_WANT"; fail=1; fi
+  fi
   [ -n "${KEEP:-}" ] && echo "kept $t" || rm -rf "$t"
 }
 
@@ -48,4 +61,6 @@ run "qcril not up yet at boot"         1 1 - - "100 101" "100 101"
 run "slot 2 starts late"               2 1 "100" "100 101" "100 101"
 run "qcril dies and comes back"        2 1 "100 101" - "102 103"
 run "no qcril binary: exits at once"   0 0 "100 101"
+CAM_WANT=1 run "camera_launch unset: turned on" 0 0 "100 101"
+CAM=0 CAM_WANT=0 run "camera_launch set by the user: kept" 0 0 "100 101"
 exit $fail
