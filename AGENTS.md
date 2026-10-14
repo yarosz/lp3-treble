@@ -12,6 +12,7 @@ Instructions for coding agents (and people) working in this repo. Read `README.m
 | `props/product.prop` | Props appended to the GSI's product `build.prop` |
 | `atel/` | `lp3-atel-ready` (Java, raw HIDL parcel), its init `.rc` and SELinux `.cil` ([README](atel/README.md)) |
 | `module/` | KernelSU / Magisk module scripts (`service.sh`) |
+| `metamodule/` | Patch and build for KernelSU's meta-overlayfs metamodule; **GPL-3.0**, unlike the rest ([README](metamodule/README.md)) |
 | `scripts/` | Build, patch, pack and check scripts; `scripts/apn/` runs against a phone over adb |
 | `docs/` | Checklist, full flash, module, APN, IMS overlay and patcher docs |
 | `.githooks/` | The pre-push privacy hook |
