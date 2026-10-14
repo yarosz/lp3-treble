@@ -113,6 +113,10 @@ opens the camera; in Aperture a half press focuses and a full press takes the ph
 Volume up (gpio-keys 115) and volume down (`pmic_resin`, Android's generic layout) change the volume. Display
 density 320. All PASS.
 
+The shutter mapping differs from light-guide's (27 → RIGHT_BRACKET, 80 → NUMPAD_2). On a phone that light-guide
+also set up, ours applies: Android reads key layouts from `/system` (and `/product`, `/vendor`) before
+light-guide's `/data/system/devices/keylayout`.
+
 ### Hardware, DSU, US Mobile on T-Mobile, 2026-10-14
 
 | Item | Result | Evidence |
