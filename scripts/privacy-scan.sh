@@ -11,8 +11,9 @@ email='[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
 mac='([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}'
 pattern="($digits)|($phone)|($email)|($mac)"
 
-# This file holds the patterns themselves.
-exclude=(':!scripts/privacy-scan.sh')
+# This file holds the patterns themselves. Cargo.lock is generated: crate names, versions and sha256 checksums,
+# whose hex has long digit runs.
+exclude=(':!scripts/privacy-scan.sh' ':!metamodule/Cargo.lock')
 
 status=0
 if [ $# -eq 0 ]; then

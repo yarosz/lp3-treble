@@ -20,9 +20,9 @@ haven't been scrubbed.
   Wi-Fi Calling (carrier provisioning or an E911 address, to check). Needs a carrier where stock LightOS does Wi-Fi
   Calling. Side note: Qualcomm's `.qtidataservices` (CNE) crashed once on the GSI with
   `IllegalArgumentException: NetworkCallback was not registered` in `DataCallAgent.tearDownDataCall`.
-- The module form (`docs/module.md`) was tested 2026-10-14 with KernelSU and no metamodule (props, SMS helper
-  runs, `camera_launch`, clean uninstall). Still open: overlays with a metamodule, Magisk, and incoming SMS with
-  the screen off on the module form (qcril accepting the call from root).
+- The module form (`docs/module.md`) was tested 2026-10-14 with KernelSU (ReSukiSU), with and without our
+  meta-overlayfs build (`metamodule/`): with it, overlays and keylayouts are active. Still open on the module
+  form: VoLTE calls, Magisk, and incoming SMS with the screen off (qcril accepting the call from root).
 - On T-Mobile's default APN (`fast.t-mobile.com`, IPV6 or IPV4V6), IPv6 and NAT64 work (`64:ff9b::/96`
   reachable, DNS64 answers), but the modem also puts an IPv4 address from 192.0.0.0/27 on the data interface
   with a default route. Android sees IPv4, so its CLAT (clatd) never starts, and IPv4 through that address gets

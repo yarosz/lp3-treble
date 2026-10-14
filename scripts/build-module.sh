@@ -26,7 +26,7 @@ name=lp3-treble
 version=$ver
 versionCode=$code
 author=lp3-treble contributors
-description=Light Phone III config for LineageOS Treble GSIs: keys, display, carrier and IMS overlays (KernelSU needs a mounting metamodule), incoming SMS fix. Unofficial, unaffiliated with Light.
+description=Light Phone III config for LineageOS Treble GSIs: keys, display, carrier and IMS overlays (KernelSU needs a mounting metamodule: see metamodule/), incoming SMS fix. Unofficial, unaffiliated with Light.
 EOF
 # Fixed timestamps (the commit's) so two builds of one commit give the same zip.
 stamp=$(git -C "$root" log -1 --format=%cd --date=format-local:%Y%m%d%H%M.%S)
