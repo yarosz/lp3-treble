@@ -110,7 +110,7 @@ Wheel, HOME and volume as in vandamd/light-guide (`keylayout/`). Scroll wheel (s
 press (66) → F8; HOME (102) → home screen. The shutter is a camera button: half press (80) → FOCUS, full press
 (27) → CAMERA (retested 2026-10-14 with `camera_launch` on: holding a full press from home, then releasing it,
 opens the camera; in Aperture a half press focuses and a full press takes the photo). Settings > System > Buttons
-shows a Camera section with the "Launch camera" switch (retested 2026-10-14 after a crash fix in `overlays/lineage-keys`).
+shows a Camera section with the "Launch camera" switch.
 Volume up (gpio-keys 115) and volume down (`pmic_resin`, Android's generic layout) change the volume. Display
 density 320. All PASS.
 
@@ -189,7 +189,10 @@ that has no Wi-Fi Calling, calls and texts are refused, which is what that setti
 - The shutter opens the camera only after a long press, on release, and only with LineageOS's `camera_launch`
   setting on (README step 9; the module sets it). The first time, Android may ask which camera app to use.
 - In Aperture, a full shutter press takes the photo when you release it (Aperture's own key handling): the
-  exposure starts about 0.2 s after release, consistently. Stock LightOS's camera starts on the press but takes
-  0.7 s to the exposure, or 1.7-1.8 s after a half press, because it refocuses (measured 2026-10-14).
+  exposure started 0.18-0.22 s after release in 4 of 4 presses. Stock LightOS's camera triggers on the press, and
+  the exposure starts about 0.7 s later, or 1.7-1.8 s after a half press because it refocuses (4 presses each,
+  2026-10-14).
+- Settings search still offers "Sleep on release", a camera-button switch the Buttons screen hides on the LP3
+  (LineageParts' search index ignores `config_singleStageCameraKey`).
 - Not tested yet: uninstalling the pack from a full flash other than by restoring stock partitions; carriers
   other than US Mobile.

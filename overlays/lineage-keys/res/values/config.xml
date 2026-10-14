@@ -3,8 +3,10 @@
     <!-- Hardware key bitmask (lineageos DeviceKeysConstants): VOLUME 64 + CAMERA 32. Wake keys keep the default
          (64): the shutter doesn't wake the phone. -->
     <integer name="config_deviceHardwareKeys">96</integer>
-    <!-- The LP3's shutter is two-stage, but LineageParts' Buttons screen crashes when a camera key can't wake the
-         phone and this is false ("camera_sleep_on_release" depends on the hidden "camera_wake_screen"). True only
-         hides that switch, which needs camera wake to do anything; key handling doesn't read it. -->
+    <!-- The LP3's shutter is two-stage, so this is deliberately not the hardware truth. LineageParts' Buttons
+         screen removes "camera_wake_screen" when the camera key can't wake the phone, then still calls
+         setDependency on it for "camera_sleep_on_release" unless this is true, and crashes. True skips that and
+         hides the switch, which needs camera wake to do anything. Only LineageParts reads this flag; drop it once
+         LineageParts fixes the dependency. -->
     <bool name="config_singleStageCameraKey">true</bool>
 </resources>
