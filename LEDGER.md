@@ -8,9 +8,13 @@ haven't been scrubbed.
 - Phase: P5 (checklist and early preview). Tested on the LP3 with US Mobile on both AT&T and T-Mobile
   networks: calls, SMS, MMS, data, fingerprint, passkeys, keys, display; installed via DSU and via full flash,
   with a rollback to stock LightOS ([`docs/checklist.md`](docs/checklist.md)).
-- Next: early-preview release; testers on other carriers.
+- Early preview released: `v0.1.0-preview.1` (pre-release). Next: testers on Verizon, physical SIMs and carriers
+  other than US Mobile.
 
 ## Open items
+
+- Wi-Fi Calling: try an overlay that sets `config_device_wfc_ims_available` (the carrier config already allows
+  it on T-Mobile's network). Auto-brightness: a brightness curve for the LP3 display.
 
 - The module form (`docs/module.md`) is untested on a phone: it needs a GSI rooted with KernelSU or Magisk.
   Check there that the overlays mount, and that qcril accepts lp3-atel-ready's call from root.

@@ -65,7 +65,9 @@ The same line, moved by a network transfer.
 
 ### US Mobile on T-Mobile, full flash, 2026-10-14
 
-The same image flashed to `system_a`, then rolled back to stock LightOS ([full flash](full-flash.md)).
+The same image flashed to `system_a`, then rolled back to stock LightOS ([full flash](full-flash.md)). Only the
+T-Mobile network was tested on the full flash. The AT&T-network results above come from DSU; they should carry
+over, because both installs run the same image on the same vendor, modem and kernel.
 
 | Item | Result | Evidence |
 |---|---|---|
@@ -106,7 +108,23 @@ credential unlocking", or it refuses user verification. KeePassDX asks once to t
 
 Same mapping as vandamd/light-guide (`keylayout/`). Scroll wheel (scancodes 19/20) → brightness up/down; wheel
 press (66) → F8; shutter half press (80) → NUMPAD_2, full press (27) → RIGHT_BRACKET; HOME (102) → home screen.
-Display density 320. All PASS.
+Volume up (gpio-keys 115) and volume down (`pmic_resin`, Android's generic layout) change the volume. Display
+density 320. All PASS.
+
+### Hardware, DSU, US Mobile on T-Mobile, 2026-10-14
+
+| Item | Result | Evidence |
+|---|---|---|
+| Back camera, photo with flash | PASS | LineageOS Aperture; 12 MP photo, flash fired |
+| Front camera | PASS | preview and photo |
+| Flashlight | PASS | quick settings tile |
+| Vibration | PASS | felt; also on volume changes |
+| Proximity sensor in a call | PASS | screen off at the ear, back on away from it |
+| GPS | PASS | fix in about 20 s indoors, 13 satellites (GPS + Galileo, including L5), accuracy about 4 m |
+| NFC | PASS | read an NTAG213 emulated by a Flipper Zero; Android opened the tag's URL |
+| Bluetooth | PASS (scan and pairing) | found nearby devices, paired with a Flipper Zero over LE; audio over Bluetooth not tested |
+| Auto-brightness | not available | the light sensor is present, but the GSI has no brightness curve for this display |
+| Wi-Fi Calling | not available | the carrier allows it, but the GSI's `config_device_wfc_ims_available` is false |
 
 ## Known issues
 
@@ -124,5 +142,10 @@ Display density 320. All PASS.
 - US Mobile on T-Mobile: on the GSI's default `fast.t-mobile.com` APN, IPv4 gets no replies (IPv6 works). Stock
   LightOS behaves the same on that APN and ships an IPv4 APN instead. `scripts/apn/set-apn.sh lightspeed`.
 - A SIM that is new to the GSI starts with mobile data off.
+- Auto-brightness is unavailable: the GSI has no brightness curve for the LP3's display. Brightness is set by
+  hand (the scroll wheel works).
+- Wi-Fi Calling is unavailable: the GSI's `config_device_wfc_ims_available` is false, so Settings shows no
+  Wi-Fi Calling switch. An overlay could turn it on (not tested).
+- The shutter button doesn't take photos in the camera app: it keeps vandamd/light-guide's mapping.
 - Not tested yet: uninstalling the pack from a full flash other than by restoring stock partitions; carriers
   other than US Mobile.
