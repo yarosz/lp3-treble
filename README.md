@@ -6,6 +6,25 @@ image. The stock vendor and kernel stay unchanged.
 
 First target: the unofficial LineageOS GSI by MisterZtr ([MisterZtr/LineageOS_gsi](https://github.com/MisterZtr/LineageOS_gsi)).
 
+## Who it's for
+
+LP3 owners who are comfortable with `adb`, `fastboot` and reading logs, and who want a stock-Android userspace
+(LineageOS) on their phone, with calls, SMS, data, fingerprint and the LP3's keys working. Testers on other
+carriers are especially welcome: so far the pack has been tested on two US Mobile lines (AT&T and T-Mobile
+networks).
+
+## How to install
+
+1. **Unlock the bootloader** with Vandam's tool, [root.noscroll.ing](https://root.noscroll.ing)
+   ([vandamd/light-guide](https://github.com/vandamd/light-guide)). Unlocking wipes the phone.
+2. **Try it through DSU first** ([build a test image](#build-a-test-image), below). The GSI boots from a
+   separate image and LightOS stays installed: one reboot takes you back.
+3. **For daily use, flash it** in place of stock `system` ([full flash](docs/full-flash.md)). Back up the stock
+   partitions first: your own dump is the only way back to LightOS.
+4. **Report what works** on your carrier with the [test checklist](docs/checklist.md).
+
+Never wipe the LP3 with `fastboot -w`: the phone then stops at "Can't load Android system".
+
 **Status: early preview ([`v0.1.0-preview.1`](https://github.com/yarosz/lp3-treble/releases/tag/v0.1.0-preview.1)). You build the image yourself.** Progress is in
 [`LEDGER.md`](LEDGER.md).
 
@@ -94,8 +113,19 @@ The pack was tested on MisterZtr's LineageOS 23.2 GSI. If you use another GSI bu
    The module form turns it on for you.
 
 For options, label rules and AVB footer handling, see the [`patch-gsi.sh` reference](docs/patch-gsi.md).
-To replace stock `system` instead of using DSU, see [full flash](docs/full-flash.md). Never wipe the LP3 with
-`fastboot -w`: the phone then stops at "Can't load Android system".
+To replace stock `system` instead of using DSU, see [full flash](docs/full-flash.md).
+
+## Tools
+
+| Script | What it does |
+|---|---|
+| `scripts/build-payload.sh` | Builds the pack (overlays, props, keylayouts, `lp3-atel-ready`) into `out/payload/` |
+| `scripts/patch-gsi.sh` | Patches the payload into a copy of a GSI `system.img` ([reference](docs/patch-gsi.md)) |
+| `scripts/pack-dsu.sh` | Compresses a patched image and prints the DSU install commands |
+| `scripts/build-module.sh` | Builds the KernelSU / Magisk module from the same payload ([module](docs/module.md), not yet device-tested) |
+| `scripts/check-sepolicy.sh` | Checks that the pack's SELinux policy compiles against your GSI before you boot it |
+| `scripts/apn/set-apn.sh` | Sets the US Mobile APN on the GSI ([why](docs/apn.md)) |
+| `scripts/privacy-scan.sh` | Scans files for IMEIs, phone numbers and emails (the pre-push hook runs it) |
 
 ## Contributing test results
 
