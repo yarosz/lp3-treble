@@ -9,17 +9,20 @@ ship it).
 
 1. Build and boot a patched image through DSU (README, "Build a test image"), or flash it
    ([full flash](full-flash.md)).
-2. In the GSI, install the IMS app from phh's Treble settings (IMS section) and reboot once.
+2. In the GSI, install the IMS app from phh's Treble settings (IMS section) and reboot once (in DSU: reboot to
+   LightOS, then boot the GSI again).
 3. Turn on mobile data. If your carrier needs a specific APN, set it ([APNs](apn.md)).
 4. Work through each row of the table below. Use a second phone for incoming calls and texts: some networks
    don't loop back texts sent to your own number.
 5. Report the results in an issue: carrier and network (for example "US Mobile on T-Mobile"), install method
-   (DSU or full flash), and PASS / FAIL per row, with what you saw on a FAIL. Never paste IMEI, IMSI, ICCID, EID,
+   (DSU or full flash), and PASS / FAIL / N/A per row (N/A for a row you skipped), with what you saw on a FAIL.
+   If the IMS app won't install or IMS never registers, report that and stop there: the call and SMS rows
+   depend on it. Never paste IMEI, IMSI, ICCID, EID,
    phone numbers, serial numbers or account emails.
 
 | Item | How |
 |---|---|
-| VoLTE registered | Settings > Network > SIMs shows VoLTE, or `adb shell dumpsys telephony.registry` shows IN_SERVICE |
+| IMS (VoLTE) registered | Dial `*#*#4636#*#*` > Phone information: IMS registration "Registered" and Voice over LTE "Available". Or `adb logcat -d \| grep "MmTel Capabilities"` shows `Voice: true`. The VoLTE switch in Settings is not proof (see known issues) |
 | Call out, call in | Place and answer a call; audio both ways |
 | SMS out, SMS in | Also with the screen off for a few minutes before the text arrives |
 | MMS out, MMS in | A picture message, or a group text with two other people |
