@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Per-carrier settings the LP3 needs on a GSI. Values match what stock LightOS reports in
-     `dumpsys carrier_config` for the same SIM. -->
+<!-- Per-carrier settings the LP3 needs on a GSI. The AT&T values match what stock LightOS reports in
+     `dumpsys carrier_config` for the same SIM; the carrier id 1 block is a GSI workaround (see its comment). -->
 <carrier_config_list>
     <!-- AT&T core PLMNs 310/280 (verified on a US Mobile line on AT&T's network) and 310/410. Other AT&T-network
          PLMNs (Cricket 310/150, FirstNet 313/100, ...) need a tester's SIM first. Without this the GSI leaves VoLTE
@@ -14,5 +14,18 @@
         <boolean name="carrier_volte_available_bool" value="true" />
         <boolean name="editable_enhanced_4g_lte_bool" value="false" />
         <boolean name="hide_enhanced_4g_lte_bool" value="true" />
+    </carrier_config>
+    <!-- Carrier name for SIMs identified as T-Mobile US (carrier id 1), e.g. US Mobile on T-Mobile's network: the SIM's
+         SPN is "T-Mobile" and T-Mobile's carrier config sets carrier_name_string "T-Mobile", so the GSI showed that,
+         while stock LightOS shows "US Mobile". The display-name resolver with PLMN-only condition 1 shows the PLMN
+         name instead: the SIM's EF_PNN if it has one, else the name the network sends. The legacy path ignores the
+         condition override. carrier_name_override_bool=false doesn't change the displayed name under the resolver
+         (only the SIM label's name source); kept because it is the tested combination. Not covered: Wi-Fi Calling
+         (the resolver formats the SPN, "T-Mobile", as before), satellite (no resolver override). MVNOs with their
+         own carrier id (Mint, Metro, Google Fi, ...) don't match. Verified on a US Mobile line. -->
+    <carrier_config cid="1">
+        <boolean name="enable_carrier_display_name_resolver_bool" value="true" />
+        <boolean name="carrier_name_override_bool" value="false" />
+        <int name="spn_display_condition_override_int" value="1" />
     </carrier_config>
 </carrier_config_list>

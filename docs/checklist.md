@@ -104,6 +104,17 @@ Setup notes: in Cromite, turn on Settings > Password Manager > "Enable Android C
 default; without it the site gets NotAllowedError). In KeePassDX, turn on Settings > Device unlocking > "Device
 credential unlocking", or it refuses user verification. KeePassDX asks once to trust Cromite as a privileged app.
 
+### Carrier name, DSU, US Mobile on T-Mobile, 2026-10-14
+
+Stock LightOS shows "US Mobile"; the GSI showed "T-Mobile" (the SIM's SPN, and T-Mobile's carrier config name).
+With `overlays/carrierconfig` (SIMs identified as carrier id 1: display-name resolver on, PLMN-only display
+condition), the quick-settings shade and the subscription carrier name show "US Mobile", the PLMN name. PASS.
+The SIM label in Settings > SIMs (user-editable, set once from the SIM) still reads "T-Mobile". Not tested: a
+T-Mobile-branded SIM (expected to keep "T-Mobile"), other carriers' SIMs identified as T-Mobile, roaming, and
+Wi-Fi Calling, where the name is expected to read "T-Mobile" as before. This applies to every SIM identified as T-Mobile US:
+T-Mobile's own customers should still see "T-Mobile"; other carriers' SIMs identified as T-Mobile show whatever
+PLMN name their SIM or network gives. Testers on T-Mobile-network carriers: report the name you see.
+
 ### Keys and display, DSU, 2026-10-14
 
 Wheel, HOME and volume as in vandamd/light-guide (`keylayout/`). Scroll wheel (scancodes 19/20) → brightness up/down; wheel
