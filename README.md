@@ -53,7 +53,8 @@ Never wipe the LP3 with `fastboot -w`: the phone then stops at "Can't load Andro
 | `overlays/lineage-keys` | Shows LineageOS's Camera button settings (Settings > System > Buttons) |
 
 The pack comes in two forms built from the same sources: a patched GSI image (below) and a KernelSU / Magisk
-module for a rooted GSI ([module](docs/module.md)).
+module for a rooted GSI ([module](docs/module.md)). Use the patched image: with KernelSU, the module applies the
+overlays and keylayouts only with a mounting metamodule, and neither that nor Magisk has been tested.
 
 ## Scope of the first preview
 
@@ -130,7 +131,7 @@ To replace stock `system` instead of using DSU, see [full flash](docs/full-flash
 | `scripts/build-payload.sh` | Builds the pack (overlays, props, keylayouts, `lp3-atel-ready`) into `out/payload/` |
 | `scripts/patch-gsi.sh` | Patches the payload into a copy of a GSI `system.img` ([reference](docs/patch-gsi.md)) |
 | `scripts/pack-dsu.sh` | Compresses a patched image and prints the DSU install commands |
-| `scripts/build-module.sh` | Builds the KernelSU / Magisk module from the same payload ([module](docs/module.md), not yet device-tested) |
+| `scripts/build-module.sh` | Builds the KernelSU / Magisk module from the same payload ([module](docs/module.md); overlays need Magisk or a KernelSU metamodule) |
 | `scripts/check-sepolicy.sh` | Checks that the pack's SELinux policy compiles against your GSI and your phone's vendor policy (see the script header) |
 | `scripts/apn/set-apn.sh` | Sets the US Mobile APN on the GSI ([why](docs/apn.md)) |
 | `scripts/privacy-scan.sh` | Scans tracked files for 14-20 digit numbers (IMEI, IMSI, ICCID, EID), phone numbers, emails and MAC addresses (the pre-push hook runs it, and also scans commit messages) |
