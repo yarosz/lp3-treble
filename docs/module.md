@@ -4,8 +4,8 @@
 (`build-payload.sh`), so both forms ship the same files. Install it from the Magisk app, or from the KernelSU app
 with a mounting metamodule installed, then reboot. On KernelSU, including the ReSukiSU that vandamd/light-guide
 installs, use our [meta-overlayfs build](../metamodule/README.md): install it first and reboot, then install the
-lp3-treble module and reboot. A module installed before the metamodule must be installed again. Remove it from the same app to
-uninstall; nothing is left behind except the `camera_launch` setting (below).
+lp3-treble module and reboot. A module installed before the metamodule must be installed again. Remove the lp3-treble module from the
+same app to uninstall; nothing is left behind except the `camera_launch` setting (below).
 
 Without a metamodule, KernelSU does not mount a module's `system/` directory: the overlays and keylayouts are
 then missing, while `system.prop`, the incoming-SMS helper and `camera_launch` still apply. `service.sh` logs a warning (logcat tag

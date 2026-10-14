@@ -10,8 +10,10 @@ patch.
 - KernelSU's meta-overlayfs, `userspace/meta-overlayfs` at tiann/KernelSU commit `926f64d3`, the last commit
   before it moved to the KernelSU-Modules-Repo organization. That repo, and the release asset its
   `update.json` pointed to, weren't publicly reachable when this was written (2026-10-14).
-- License: GPL-3.0 (KernelSU's). `meta-overlayfs.patch` is a derivative of it and is GPL-3.0 too. The rest of
-  lp3-treble stays Apache-2.0.
+- License: GNU GPL version 3, as in KernelSU's `LICENSE` (copied here as [`LICENSE`](LICENSE)).
+  `meta-overlayfs.patch` is a derivative and is under the same license. The rest of lp3-treble stays
+  Apache-2.0.
+- Unofficial: built by lp3-treble, not by or with the KernelSU developers, who don't support it.
 
 ## What the patch changes
 
@@ -23,14 +25,22 @@ patch.
    the mount fails with an I/O error.
 4. `module.prop`: version `1.1.0-lp3treble.1`, no `updateJson` (the upstream one points to a missing file).
 
+Unlike upstream, which builds bionic binaries for arm64 and x86_64 with the NDK, this builds one static musl
+binary for arm64 only; installing it on an x86_64 device stops with "Binary not found".
+
 ## Build
 
-`metamodule/build.sh` (docker and network; nothing touches a device) downloads the source tarball, checks its
-sha256, applies the patch and builds a static arm64 binary into `out/meta-overlayfs-<version>.zip`. Repeated
-builds produce the same binary.
+`metamodule/build.sh` (docker on an arm64 host, and network; nothing touches a device) downloads the source
+tarball, checks its sha256, applies the patch and builds in a digest-pinned `rust:1.89-alpine` image. It writes
+`out/meta-overlayfs-<version>.zip` (with `LICENSE` and `SOURCE.txt` inside) and
+`out/meta-overlayfs-<version>-source.tar.gz` (the patched source, `Cargo.lock` and `LICENSE`), which is
+attached to every release that ships the zip. Two builds on 2026-10-14 gave the same zip and binary (binary
+sha256 `cc66ae97cd6102511e39e049cb829a90878ec47071d02c3b60184e781dc0fe5e`, the binary that was tested).
 
 ## Install
 
 From the KernelSU (or ReSukiSU) app, or `ksud module install`: the metamodule first, reboot, then the
-lp3-treble module, reboot. A module installed before the metamodule must be installed again. See
+lp3-treble module, reboot. A module installed before the metamodule must be installed again. Tested on fresh
+DSU userdata with ReSukiSU only: not over an earlier meta-overlayfs install, and not on other KernelSU builds
+(the `chcon` logs a line if it fails there). See
 [`docs/module.md`](../docs/module.md).

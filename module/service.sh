@@ -29,7 +29,7 @@ if [ ! -e /vendor/bin/hw/qcrilNrd ] && [ ! -e /vendor/bin/qcrild ]; then
 fi
 # On KernelSU without a mounting metamodule, system/ is not mounted: the overlays and keylayouts are missing.
 [ -e /product/overlay/lp3-treble-carrierconfig.apk ] ||
-  log -t "$TAG" "module system/ files are not mounted (KernelSU needs a metamodule such as meta-overlayfs)"
+  log -t "$TAG" "module system/ files are not mounted (KernelSU needs a mounting metamodule: lp3-treble ships one, see github.com/yarosz/lp3-treble metamodule/)"
 
 # The .rc fires when a qcril service enters running. Watching process ids instead catches every (re)start, even
 # one faster than the poll, and services that start late. A new run replaces a previous one still retrying, as

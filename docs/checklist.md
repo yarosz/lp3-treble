@@ -132,7 +132,8 @@ partition written). No metamodule. Module installed with `ksud module install`, 
 | Uninstall (`ksud module uninstall`, reboot) | PASS | Density back to 480, module directory gone; `camera_launch` stays on |
 
 With our [meta-overlayfs build](../metamodule/README.md) (`1.1.0-lp3treble.1`), on fresh DSU userdata: metamodule
-installed, reboot, module installed, reboot. No manual step.
+installed, reboot, module installed, reboot. No manual step. The metamodule scripts gained a log line for a
+failed `chcon` after this test; the binary is the tested one.
 
 | Check | Result | Notes |
 |---|---|---|
