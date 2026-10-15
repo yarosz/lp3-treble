@@ -9,6 +9,9 @@ a() { adb -s "$S" shell "$@" </dev/null | tr -d '\r'; }
 wifi_was=$(a settings get global wifi_on)
 md=$(a settings get global mobile_data)
 echo "mobile_data=$md wifi_on=$wifi_was"
+restore_wifi() { if [ "$wifi_was" = 1 ]; then a svc wifi enable; fi; }
+trap restore_wifi EXIT
+trap 'exit 130' INT TERM
 [ "$md" = 1 ] || { a svc data enable; echo "mobile data was off: turned on ($(a settings get global mobile_data))"; }
 a svc wifi disable
 ok=1
@@ -26,6 +29,5 @@ echo "ping v4: $p"
 p6=$(a ping6 -c 3 -W 5 2606:4700:4700::1111 | tail -2 | tr '\n' ' ')
 echo "ping v6: $p6"
 case "$p $p6" in *" 0% packet loss"*) ;; *) ok=1;; esac
-[ "$wifi_was" = 1 ] && a svc wifi enable
 [ $ok = 0 ] && echo "PASS mobile data (cellular VALIDATED, ping OK)" || echo "FAIL mobile data"
 exit $ok

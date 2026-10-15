@@ -8,13 +8,16 @@ set -uo pipefail
 S=${ANDROID_SERIAL:?set ANDROID_SERIAL}
 dump() { adb -s "$S" exec-out uiautomator dump /dev/tty </dev/null 2>/dev/null | tr '>' '\n'; }
 mask() { sed -E 's/\(?[0-9]{3}\)? ?[0-9]{3}-[0-9]{4}/<num>/g; s/[0-9]{7,}/<n>/g'; }
-case $1 in
+usage() { echo "usage: gsi-ui.sh ids [n] | tap <regex> | focus"; exit 2; }
+case ${1:-} in
   ids) dump | grep -oE '(resource-id|text|content-desc)="[^"]+"' | mask | awk '!s[$0]++' | head -${2:-60} ;;
   tap)
+    [ -n "${2:-}" ] || usage
     b=$(dump | grep -E "$2" | grep -oE 'bounds="\[[0-9]+,[0-9]+\]\[[0-9]+,[0-9]+\]"' | head -1)
     [ -n "$b" ] || { echo "no node matches: $2"; exit 1; }
     read -r x1 y1 x2 y2 < <(printf '%s\n' "$b" | tr -c '0-9\n' ' ')
     adb -s "$S" shell input tap $(( (x1+x2)/2 )) $(( (y1+y2)/2 )) </dev/null
     echo "tapped $(( (x1+x2)/2 )),$(( (y1+y2)/2 ))" ;;
   focus) adb -s "$S" shell dumpsys window displays </dev/null | grep -m1 mCurrentFocus | mask ;;
+  *) usage ;;
 esac

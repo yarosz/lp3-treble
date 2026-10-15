@@ -63,7 +63,7 @@ Instructions for coding agents (and people) working in this repo. Read `README.m
 - **DSU first.** Test every change in a DSU boot (`gsi_tool enable --single-boot`) before anyone flashes it.
 - **Full flash only as written in `docs/full-flash.md`**: slot `a` only (stop if `current-slot` is `b`, never
   write a `_b` partition), stop if `snapshot-update-status` isn't `none` or the image doesn't fit `super` (never
-  delete logical partitions), and only with a dump of `super` and `vbmeta_a` whose sizes and sha256 you verified.
-  The flash and the rollback both wipe userdata. There is no public LP3 factory image.
+  delete logical partitions), and only with a dump of `super`, `vbmeta_a` and `boot_a` whose sizes and sha256
+  you verified. The flash and the rollback both wipe userdata. There is no public LP3 factory image.
 - Don't take a Light OTA on an unlocked or flashed phone: the dump would no longer match the firmware, and the
   rollback restores the partitions as they were at backup time.

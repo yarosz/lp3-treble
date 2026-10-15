@@ -3,6 +3,11 @@
 // MMS. Set SKIP_ATTACH=1 to send only the caption when the image is already attached.
 // node --no-warnings --experimental-websocket gv-mms.js <tabId> <abs image path> <caption>
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const open = ws => new Promise((r, j) => {
+  const t = setTimeout(() => j(new Error('CDP WebSocket did not open in 10 s')), 10000);
+  ws.onopen = () => { clearTimeout(t); r(); };
+  ws.onerror = () => { clearTimeout(t); j(new Error('CDP WebSocket error')); };
+});
 (async () => {
   const [tabId, file, caption] = process.argv.slice(2);
   const tabs = await (await fetch('http://127.0.0.1:9222/json/list')).json();
@@ -10,7 +15,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   if (!t) throw new Error('no tab ' + tabId);
   const ws = new WebSocket(t.webSocketDebuggerUrl); let n = 0; const pend = {};
   ws.onmessage = m => { const d = JSON.parse(m.data); if (d.id && pend[d.id]) { pend[d.id](d); delete pend[d.id]; } };
-  await new Promise(r => ws.onopen = r);
+  await open(ws);
   const call = (method, params = {}) => new Promise(r => { const id = ++n; pend[id] = r; ws.send(JSON.stringify({ id, method, params })); });
   const ev = async js => (await call('Runtime.evaluate', { expression: js, awaitPromise: true, returnByValue: true })).result?.result?.value;
   const doc = await call('DOM.getDocument', { depth: -1, pierce: true });

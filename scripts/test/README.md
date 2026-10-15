@@ -52,4 +52,12 @@ They need:
   (`curl -X PUT 'http://127.0.0.1:9222/json/new?https://voice.google.com/u/0/'`). Anything that can reach that
   port controls the browser: use a separate browser profile and close it after the test.
 - `node` 22 or newer (`--experimental-websocket`), `curl` and `jq`.
-- `LP3_NUMBER` set. Calls also need the browser to have a microphone; `gv-call.js` grants the permission.
+- `LP3_NUMBER` set. Calls also need the browser to have a microphone; `gv-call.js` grants the permission to
+  `https://voice.google.com` and leaves it granted in that browser profile afterwards.
+
+There is no shell wrapper for a picture message from Google Voice. Open the LP3's conversation in the Google Voice
+tab, then run:
+
+```
+node --no-warnings --experimental-websocket scripts/test/gv/gv-mms.js "$(scripts/test/gv/gv-tab.sh)" /abs/path/image.png "caption"
+```

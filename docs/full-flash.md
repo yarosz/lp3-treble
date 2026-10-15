@@ -55,26 +55,32 @@ snapshot status `none` they are not in use.
 
 ## Flash
 
-1. Reboot to the bootloader (`adb reboot bootloader`) and flash your stock `vbmeta_a` with verification turned
-   off. Without the flags, the stock `vbmeta_system` hash for `system` fails on the GSI.
+1. Reboot to the bootloader (`adb reboot bootloader`) and run the checks from [Before you start](#before-you-start)
+   again (slot `a`, unlocked, snapshot status `none`).
 
-   ```
-   fastboot --disable-verity --disable-verification flash vbmeta_a vbmeta_a.img
-   ```
-
-2. Go to fastbootd, check the slot again, and flash the image. fastbootd resizes `system_a` to fit.
+2. Go to fastbootd, wait until `fastboot getvar is-userspace` says `yes`, check the slot again, and flash the
+   image. fastbootd resizes `system_a` to fit. This is the fit check: if the image doesn't fit `super`, fastbootd
+   refuses it, and at that point nothing has been written. Stop there.
 
    ```
    fastboot reboot fastboot
+   fastboot getvar is-userspace
    fastboot getvar current-slot
    fastboot flash system_a lp3.img
    ```
 
-3. Go back to the bootloader and wipe userdata. **Don't use `fastboot -w`** (see the
-   [known issues](checklist.md#known-issues)).
+3. Go back to the bootloader, wait until `is-userspace` no longer says `yes`, and flash your stock `vbmeta_a` with
+   verification turned off. Without the flags, the stock `vbmeta_system` hash for `system` fails on the GSI.
 
    ```
    fastboot reboot bootloader
+   fastboot getvar is-userspace
+   fastboot --disable-verity --disable-verification flash vbmeta_a vbmeta_a.img
+   ```
+
+4. Wipe userdata. **Don't use `fastboot -w`** (see the [known issues](checklist.md#known-issues)).
+
+   ```
    fastboot erase userdata
    fastboot erase metadata
    fastboot reboot

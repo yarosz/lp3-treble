@@ -7,17 +7,22 @@
 # Env: ANDROID_SERIAL, LP3_NUMBER; Google Voice set up as in README.md.
 # Prints RECEIVED/NOT RECEIVED and the matching IMS log lines. Space tests a few minutes apart (SMSC backoff).
 set -uo pipefail
-mode=$1; text=$2; t=${3:-180}; S=${ANDROID_SERIAL:?set ANDROID_SERIAL}; here=$(cd "$(dirname "$0")" && pwd)
+usage() { echo "usage: mt-sms-test.sh <screenoff|doze> \"<text: letters, digits, spaces>\" [wait seconds]"; exit 2; }
+mode=${1:-}; text=${2:-}; t=${3:-180}; S=${ANDROID_SERIAL:?set ANDROID_SERIAL}; here=$(cd "$(dirname "$0")" && pwd)
+case "$mode" in screenoff|doze) ;; *) usage;; esac
+[[ $text =~ ^[A-Za-z0-9\ ]+$ ]] || usage
 a() { adb -s "$S" "$@" </dev/null; }
 a shell input keyevent 223
 sleep 30
 if [ "$mode" = doze ]; then
+  trap 'a shell dumpsys deviceidle unforce >/dev/null' EXIT
+  trap 'exit 130' INT TERM
   a shell dumpsys deviceidle force-idle
   a shell dumpsys deviceidle get deep | sed 's/^/deep idle: /'
 fi
 a shell dumpsys power | grep -m1 'mWakefulness=' | sed 's/^ */power: /'
 tab=$("$here/gv/gv-tab.sh")
-"$here/gv/gv-text-lp3.sh" "$tab" "$text" | tail -1
+"$here/gv/gv-text-lp3.sh" "$tab" "$text" | tail -1 || { echo "Google Voice send failed"; exit 1; }
 echo "sent at $(date +%T)"
 for _ in $(seq 1 $((t / 3))); do
   # One string: adb joins the args and the phone's shell splits them again.

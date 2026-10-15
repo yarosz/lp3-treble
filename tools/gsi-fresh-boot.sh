@@ -10,4 +10,4 @@ apk=${1:?phh IMS apk}; S=${2:-${ANDROID_SERIAL:?pass the serial or set ANDROID_S
 adb -s "$S" shell "settings put global device_provisioned 1; settings put secure user_setup_complete 1" </dev/null
 "$here/gsi-reboot.sh" "$S"
 ANDROID_SERIAL=$S "$here/wait-in-service.sh" 120
-"$here/wait-ims-reg.sh" "$S" | tail -2
+"$here/wait-ims-reg.sh" "$S" || { echo "IMS did not register"; exit 1; }

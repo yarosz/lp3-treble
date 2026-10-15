@@ -16,9 +16,9 @@ while read -r name dev bytes; do
   [ -n "$name" ] || continue
   if grep -q "^$name	OK	" "$man"; then ok=$((ok + 1)); continue; fi
   dsha=$(adb -s "$s" exec-out "su -c 'sha256sum $dev'" </dev/null | awk '{print $1}')
-  hsha=$(adb -s "$s" exec-out "su -c 'dd if=$dev bs=4194304 2>/dev/null'" </dev/null \
-    | tee >(zstd -q -T0 -3 -o "$out/$name.img.zst" -f) | shasum -a 256 | awk '{print $1}')
-  sleep 1  # let zstd finish writing
+  # Save first, then hash and size what is on disk, so OK describes the saved file.
+  adb -s "$s" exec-out "su -c 'dd if=$dev bs=4194304 2>/dev/null'" </dev/null | zstd -q -T0 -3 -f -o "$out/$name.img.zst"
+  hsha=$(zstd -dc "$out/$name.img.zst" | shasum -a 256 | awk '{print $1}')
   got=$(zstd -dc "$out/$name.img.zst" | wc -c | tr -d ' ')
   if [ -n "$dsha" ] && [ "$dsha" = "$hsha" ] && [ "$got" = "$bytes" ]; then st=OK; ok=$((ok + 1)); else st=BAD; bad=$((bad + 1)); fi
   sed -i '' "/^$name	/d" "$man"

@@ -3,9 +3,11 @@
 # it): compose to the line's own number, attach the newest image from the photo picker, caption, send; then wait for
 # the received copy (wait-mms.sh). Sends a real MMS.
 # Needs an image in MediaStore (e.g. adb push one to /sdcard/Pictures/). Usage: gsi-mms-image.sh "<caption>" [wait s]
+# Caption: letters, digits, spaces only.
 # Env: ANDROID_SERIAL, LP3_NUMBER (digits).
 set -uo pipefail
 S=${ANDROID_SERIAL:?set ANDROID_SERIAL}; own=${LP3_NUMBER:?set LP3_NUMBER}; cap=${1:-mms test}
+[[ $cap =~ ^[A-Za-z0-9\ ]+$ ]] || { echo "caption: letters, digits and spaces only"; exit 2; }
 here=$(cd "$(dirname "$0")" && pwd)
 a() { adb -s "$S" shell "$@" </dev/null | tr -d '\r'; }
 ui() { "$here/../../tools/gsi-ui.sh" "$@"; }

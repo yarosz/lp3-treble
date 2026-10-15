@@ -2,7 +2,8 @@
 
 Scripts that drive an LP3 from a computer over adb and fastboot: install and boot the GSI through DSU, take
 one-boot root, back up, full flash and roll back. They were written while developing lp3-treble with AI assistance
-(Claude Code), and are plain bash and Python scripts that people and agents can both run.
+(Claude Code), and are plain bash scripts (`ui-dump.sh` has a few lines of inline Python) that people and agents
+can both run.
 
 ## Prerequisites
 
@@ -27,8 +28,8 @@ one-boot root, back up, full flash and roll back. They were written while develo
 | `to-lightos.sh` | Leaves the DSU GSI for stock LightOS | |
 | `wait-boot-completed.sh` | Waits for `sys.boot_completed` | |
 | `gsi-fresh-boot.sh` | First boots after a DSU install: LTE, IMS app, provisioned flag, second boot, waits for service and IMS | phh's IMS APK |
-| `gsi-ims-setup.sh` | Allows LTE/NR on SIM slot 1 and installs phh's IMS APK | phh's IMS APK, downloaded from phh (treble.phh.me) |
-| `gsi-set-lte.sh` | Device side: allowed network types NR/LTE/WCDMA/GSM on SIM slot 1 | |
+| `gsi-ims-setup.sh` | Allows LTE/NR on SIM slot 1 and installs phh's IMS APK; prints the APK's sha256, and refuses an APK whose sha256 isn't `IMS_APK_SHA256` when that is set | phh's IMS APK, downloaded from phh (treble.phh.me) |
+| `gsi-set-lte.sh` | Device side: allowed network types NR/LTE/WCDMA/GSM on SIM slot 1; prints the old mask first so you can set it back | |
 | `wait-in-service.sh` | Waits for voice IN_SERVICE | `ANDROID_SERIAL` |
 | `wait-ims-reg.sh` | Waits for IMS registration in the GSI's logs | |
 | `ui-dump.sh` | Prints each on-screen node with text and its centre | `python3` |
@@ -38,7 +39,8 @@ one-boot root, back up, full flash and roll back. They were written while develo
 | `verify-dump.sh` | Re-verifies a partition dump against its manifest | `zstd` |
 | `fullflash.sh` | `dryrun` / `flash` of a patched image onto slot `a` ([full flash](../docs/full-flash.md)) | verified dump, `rollback.sh prep` |
 | `rollback.sh` | `prep` / `check` / `flash`: restores `super`, `vbmeta_a` and `boot_a` from the dump | verified dump with those three |
-| `user-data-backup.sh` | Pulls media, SMS, MMS, call log and contacts before a wipe | |
+| `dump-lib.sh` | Sourced by `fullflash.sh` and `rollback.sh`: manifest and image checks, fastboot mode waits | |
+| `user-data-backup.sh` | Pulls SMS, MMS, call log, contacts and the `/sdcard` folders DCIM, Pictures, Movies, Download, Documents, Recordings, Music, Ringtones, Notifications, Alarms, Podcasts and Audiobooks before a wipe. Other `/sdcard` folders are not copied. Exits 1 if any pull fails | |
 | `backup-encrypt.sh` | macOS only: copies backups into an AES-256 sparse bundle and verifies them; passphrase from a hidden dialog | `hdiutil` |
 | `backup-attach.sh` | macOS only: mounts that bundle at `/Volumes/LP3-backup` | `hdiutil` |
 
