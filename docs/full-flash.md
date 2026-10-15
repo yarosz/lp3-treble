@@ -23,7 +23,10 @@ end before you start. You do it at your own risk.
 
 ### Back up the stock partitions
 
-The rollback restores `super` and `vbmeta_a` from your own copies. Make them before you flash. You need root
+The rollback restores `super`, `vbmeta_a` and `boot_a` from your own copies. `boot_a` isn't written by this
+flash, but an installer such as vandamd/light-guide's writes its own kernel there, so keep the stock one too. Make
+the copies before you flash. The same steps are scripted in [`tools/`](../tools/README.md) (`partition-dump.sh`,
+`verify-dump.sh`, `fullflash.sh`, `rollback.sh`). You need root
 for one boot: `fastboot boot` a rooted boot image built for `00WW_1_440000`. The test used `resukisu-boot.img`
 from vandamd/light-guide's `lightos-resukisu-susfs-00WW_1_440000-preview1` release, sha256
 `820e91e882af25a9174dd23a4caea70412fdf97159f951ab0df9b2e531760fe9`. `fastboot boot` writes nothing to the phone,
@@ -33,11 +36,12 @@ shell in the root manager app:
 ```
 adb exec-out "su -c 'dd if=/dev/block/by-name/super bs=4194304 2>/dev/null'" > super.img
 adb exec-out "su -c 'dd if=/dev/block/by-name/vbmeta_a 2>/dev/null'" > vbmeta_a.img
-adb shell "su -c 'sha256sum /dev/block/by-name/super /dev/block/by-name/vbmeta_a'"
-shasum -a 256 super.img vbmeta_a.img
+adb exec-out "su -c 'dd if=/dev/block/by-name/boot_a bs=4194304 2>/dev/null'" > boot_a.img
+adb shell "su -c 'sha256sum /dev/block/by-name/super /dev/block/by-name/vbmeta_a /dev/block/by-name/boot_a'"
+shasum -a 256 super.img vbmeta_a.img boot_a.img
 ```
 
-The hashes must match, and the files must be exactly 6442450944 and 65536 bytes. Don't flash anything until
+The hashes must match, and the files must be exactly 6442450944, 65536 and 100663296 bytes. Don't flash anything until
 they do. Keep the copies safe, and don't share or upload them: they contain Light's software.
 
 ### Check the space in `super`
@@ -51,26 +55,32 @@ snapshot status `none` they are not in use.
 
 ## Flash
 
-1. Reboot to the bootloader (`adb reboot bootloader`) and flash your stock `vbmeta_a` with verification turned
-   off. Without the flags, the stock `vbmeta_system` hash for `system` fails on the GSI.
+1. Reboot to the bootloader (`adb reboot bootloader`) and run the checks from [Before you start](#before-you-start)
+   again (slot `a`, unlocked, snapshot status `none`).
 
-   ```
-   fastboot --disable-verity --disable-verification flash vbmeta_a vbmeta_a.img
-   ```
-
-2. Go to fastbootd, check the slot again, and flash the image. fastbootd resizes `system_a` to fit.
+2. Go to fastbootd, wait until `fastboot getvar is-userspace` says `yes`, check the slot again, and flash the
+   image. fastbootd resizes `system_a` to fit. This is the fit check: if the image doesn't fit `super`, fastbootd
+   refuses it, and at that point nothing has been written. Stop there.
 
    ```
    fastboot reboot fastboot
+   fastboot getvar is-userspace
    fastboot getvar current-slot
    fastboot flash system_a lp3.img
    ```
 
-3. Go back to the bootloader and wipe userdata. **Don't use `fastboot -w`** (see the
-   [known issues](checklist.md#known-issues)).
+3. Go back to the bootloader, wait until `is-userspace` no longer says `yes`, and flash your stock `vbmeta_a` with
+   verification turned off. Without the flags, the stock `vbmeta_system` hash for `system` fails on the GSI.
 
    ```
    fastboot reboot bootloader
+   fastboot getvar is-userspace
+   fastboot --disable-verity --disable-verification flash vbmeta_a vbmeta_a.img
+   ```
+
+4. Wipe userdata. **Don't use `fastboot -w`** (see the [known issues](checklist.md#known-issues)).
+
+   ```
    fastboot erase userdata
    fastboot erase metadata
    fastboot reboot
@@ -87,12 +97,13 @@ mobile data, and set the APN if your carrier needs it ([APNs](apn.md)).
 
 ## Roll back to stock LightOS
 
-From the bootloader, check the slot, restore your two copies and wipe userdata:
+From the bootloader, check the slot, restore your three copies and wipe userdata:
 
 ```
 fastboot getvar current-slot
 fastboot flash super super.img
 fastboot flash vbmeta_a vbmeta_a.img
+fastboot flash boot_a boot_a.img
 fastboot erase userdata
 fastboot erase metadata
 fastboot reboot

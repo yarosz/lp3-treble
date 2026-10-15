@@ -13,6 +13,8 @@ Instructions for coding agents (and people) working in this repo. Read `README.m
 | `module/` | KernelSU / Magisk module scripts (`service.sh`) |
 | `metamodule/` | Patch and build for KernelSU's meta-overlayfs metamodule; **GPL-3.0**, unlike the rest ([README](metamodule/README.md)) |
 | `scripts/` | Build, patch, pack and check scripts; `scripts/apn/` runs against a phone over adb |
+| `scripts/test/` | Checklist test harness: scripts that reproduce `docs/checklist.md` rows on a phone in the GSI ([README](scripts/test/README.md)) |
+| `tools/` | Device tools: DSU install and boot, one-boot root, partition dump, full flash and rollback, backups ([README](tools/README.md)) |
 | `docs/` | Checklist, full flash, module, APN, IMS overlay and patcher docs |
 | `.githooks/` | The pre-push privacy hook |
 | `LEDGER.md` | Public progress record: add a line when a device result, release or decision lands |
@@ -28,6 +30,19 @@ Instructions for coding agents (and people) working in this repo. Read `README.m
   files from an LP3; see its header).
 - Device results go in `docs/checklist.md` with the date, the install form (DSU or full flash) and the carrier.
   Write down what was not tested.
+
+## Device tools and test harness
+
+- `tools/` drives the phone: start with DSU (`dsu-install.sh`, `wait-dsu-ready.sh`, `gsi-fresh-boot.sh`, then
+  `gsi-reboot.sh` / `to-lightos.sh` to switch). The full-flash tools (`temp-root-boot.sh`, `partition-dump.sh`,
+  `rollback.sh prep`, `fullflash.sh dryrun` before `flash`) come only after DSU testing and follow
+  `docs/full-flash.md`.
+- `scripts/test/` maps to the rows of `docs/checklist.md` (its README has the table). Phone numbers come from the
+  `LP3_NUMBER` and `PEER_NUMBER` environment variables, the serial from `ANDROID_SERIAL` or an argument: never
+  write them into a script.
+- When you repeat a device sequence by hand, script it into one of these folders: minimal, only the steps you ran
+  for real, no speculative options. Keep the header (what, usage, env, read-only or writes) and the safety rules
+  below.
 
 ## Privacy (public repo)
 
@@ -48,7 +63,7 @@ Instructions for coding agents (and people) working in this repo. Read `README.m
 - **DSU first.** Test every change in a DSU boot (`gsi_tool enable --single-boot`) before anyone flashes it.
 - **Full flash only as written in `docs/full-flash.md`**: slot `a` only (stop if `current-slot` is `b`, never
   write a `_b` partition), stop if `snapshot-update-status` isn't `none` or the image doesn't fit `super` (never
-  delete logical partitions), and only with a dump of `super` and `vbmeta_a` whose sizes and sha256 you verified.
-  The flash and the rollback both wipe userdata. There is no public LP3 factory image.
+  delete logical partitions), and only with a dump of `super`, `vbmeta_a` and `boot_a` whose sizes and sha256
+  you verified. The flash and the rollback both wipe userdata. There is no public LP3 factory image.
 - Don't take a Light OTA on an unlocked or flashed phone: the dump would no longer match the firmware, and the
   rollback restores the partitions as they were at backup time.
