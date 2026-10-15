@@ -67,8 +67,10 @@ Instructions for coding agents (and people) working in this repo. Read `README.m
   you verified. The flash and the rollback both wipe userdata. There is no public LP3 factory image.
 - Don't take a Light OTA on an unlocked or flashed phone: the dump would no longer match the firmware, and the
   rollback restores the partitions as they were at backup time. Every userdata wipe (unlock, rollback, factory
-  reset) turns LightOS updates back on, and LightOS setup may offer an update: never accept it when driving setup.
-  Skip Wi-Fi in setup, turn updates off (`pm disable-user com.lightos.fota`), then connect Wi-Fi.
+  reset) turns LightOS updates back on, and LightOS setup may offer an update: never accept it. Follow the
+  README's [after a wipe](README.md#after-a-wipe-lightos-setup) steps (decline, skip Wi-Fi and stay in airplane
+  mode, adb back via `*7412369#` + Settings > Debug > Android Dev Mode + Allow, `adb shell pm disable-user
+  com.lightos.fota` and check it, then Wi-Fi).
 - **Never relock the bootloader.** vandamd/light-guide implements a relock: its "Restore LightOS" flow writes back
   stock `boot` and `vbmeta` (and `system` when coming from LineageOS), checks every pinned partition against stock
   hashes, erases `avb_custom_key`, then runs `flashing lock` and checks for green verified boot. But if a verified

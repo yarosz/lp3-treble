@@ -27,11 +27,11 @@ been tested on the T-Mobile network only.
 The tested path needs LightOS firmware `00WW_1_440000`.
 
 1. **Back up your data** (photos, messages, anything on the phone): unlocking wipes it.
-2. **Turn off LightOS updates** (`adb shell pm disable-user com.lightos.fota`) and take no update while the
-   bootloader is unlocked. Every wipe (the unlock, a rollback, a factory reset) turns updates back on, and LightOS
-   setup may offer an update: decline it. In setup after a wipe, skip Wi-Fi, turn on Developer Mode (dial
-   `*7412369#` in the Phone tool), turn updates off again, and only then connect Wi-Fi.
-3. **Unlock the bootloader** with Vandam's tool, [root.noscroll.ing](https://root.noscroll.ing)
+2. **Turn off LightOS updates** (`adb shell pm disable-user com.lightos.fota`; for adb, dial `*7412369#` in the
+   Phone tool, turn on Settings > Debug > Android Dev Mode and accept "Allow USB debugging"). An update moves the
+   phone off the tested firmware, and none may be taken while the bootloader is unlocked.
+3. **Unlock the bootloader** (it wipes the phone: then follow [after a wipe](#after-a-wipe-lightos-setup)) with
+   Vandam's tool, [root.noscroll.ing](https://root.noscroll.ing)
    ([vandamd/light-guide](https://github.com/vandamd/light-guide)). For the image path below, use it for the
    unlock only: its root and LineageOS install options replace `boot`, `vbmeta` and `system`, which the image path
    expects to be stock. If you already installed LineageOS with it and rooted it with KernelSU, the
@@ -45,6 +45,18 @@ The tested path needs LightOS firmware `00WW_1_440000`.
 6. **Report what works** on your carrier with the [test checklist](docs/checklist.md).
 
 Never wipe the LP3 with `fastboot -w`: the phone then stops at "Can't load Android system".
+
+### After a wipe: LightOS setup
+
+Every userdata wipe (the unlock, a rollback to stock, a factory reset) turns LightOS updates back on, and LightOS
+setup may offer a software update. Never take it on an unlocked phone. In setup:
+
+1. Decline any update and skip Wi-Fi. If the phone has a SIM or eSIM with data (eSIM profiles survive the wipe),
+   turn on airplane mode too, so nothing downloads over mobile data.
+2. For adb: dial `*7412369#` in the Phone tool (it reveals Settings > Debug), turn on Settings > Debug > Android Dev Mode, and accept the "Allow USB debugging" prompt.
+3. Turn updates off and check it: `adb shell pm disable-user com.lightos.fota`, then
+   `adb shell pm list packages -d | grep fota` must list it.
+4. Only then connect Wi-Fi (for wireless adb or Wi-Fi Calling, for example) and turn airplane mode off.
 
 ## What's in the pack
 

@@ -112,7 +112,7 @@ fastboot reboot
 `current-slot` must say `a`. If it says `b` (for example after the flashed system failed to boot several times),
 `fastboot --set-active=a` switches back; this step was not needed in the test. Don't flash any `_b` partition.
 fastboot splits the 6 GiB `super` image into chunks on its own; restoring `super` puts back every logical
-partition, whatever the flash changed. LightOS boots into its setup screens, with updates turned back on by the
-wipe, and it may offer a software update: decline it. Skip Wi-Fi in setup, turn Developer Mode on again (dial
-`*7412369#` in the Phone tool) to get adb back, turn LightOS updates off again
-(`adb shell pm disable-user com.lightos.fota`), and only then connect Wi-Fi.
+partition, whatever the flash changed. LightOS boots into its setup screens with updates turned back on by the
+wipe, and it may offer a software update: never take it. Follow the README's
+[after a wipe](../README.md#after-a-wipe-lightos-setup) steps (decline, skip Wi-Fi, adb back, updates off, then
+Wi-Fi).

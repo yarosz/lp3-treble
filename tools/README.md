@@ -8,7 +8,9 @@ can both run.
 ## Prerequisites
 
 - A recent Android platform-tools (`adb`, `fastboot` with fastbootd support) and an LP3 with the bootloader
-  unlocked and adb turned on (Developer Mode: dial `*7412369#` in the Phone tool).
+  unlocked and adb turned on: dial `*7412369#` in the Phone tool (it reveals Settings > Debug), turn on
+  Settings > Debug > Android Dev Mode, and accept "Allow USB debugging". After a wipe, LightOS updates are back on:
+  see the README's [after a wipe](../README.md#after-a-wipe-lightos-setup) before connecting Wi-Fi.
 - macOS. A few scripts use BSD `stat -f` and `sed -i ''`, and the backup bundle scripts need `hdiutil` and
   `osascript`. `zstd` for the partition dump, `python3` for `ui-dump.sh`.
 - The serial: scripts take it as an argument, or read `ANDROID_SERIAL` (the variable adb itself reads) where the
