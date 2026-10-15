@@ -38,7 +38,7 @@ The tested path needs LightOS firmware `00WW_1_440000`.
 4. **Try it through DSU first** ([build a test image](#build-a-test-image), below). The GSI boots from a
    separate image and LightOS stays installed: one reboot takes you back.
 5. **For daily use, flash it** in place of stock `system` ([full flash](docs/full-flash.md)). Before you flash,
-   dump `super` and `vbmeta_a` (this needs a one-boot root image). That dump is the only way back from a full
+   dump `super`, `vbmeta_a` and `boot_a` (this needs a one-boot root image). That dump is the only way back from a full
    flash to (unlocked) LightOS. The flash and the rollback both wipe userdata, and only slot `a` was tested.
 6. **Report what works** on your carrier with the [test checklist](docs/checklist.md).
 
@@ -122,7 +122,9 @@ The pack was tested on MisterZtr's LineageOS 23.2 GSI. If you use another GSI bu
    adb reboot
    ```
 
-6. In the GSI, install the Qualcomm IMS app from phh's Treble settings (IMS section).
+6. Install phh's Qualcomm IMS app in the GSI: download phh's `ims-caf` APK from treble.phh.me and run
+   `adb install <apk>`, or `tools/gsi-ims-setup.sh <apk>`, which also allows LTE/NR on the SIM. That is the route
+   tested here; phh's Treble settings app also offers an install in its IMS section (not tested on the LP3).
 7. Reboot to LightOS, then repeat step 5. VoLTE is available from this boot on.
 8. In the GSI, turn on mobile data (it starts off for a SIM new to the GSI). On US Mobile, also set the APN:
    `scripts/apn/set-apn.sh darkstar` or `lightspeed` ([why](docs/apn.md)).

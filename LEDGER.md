@@ -91,7 +91,12 @@ haven't been scrubbed.
 - 2026-10-12: CarrierConfig overlay (VoLTE on AT&T SIMs): calls both ways and outgoing SMS work in the GSI.
 - 2026-10-12: `lp3-atel-ready` (init service, own SELinux domain): incoming SMS arrive with the screen off and in
   deep doze, on an enforcing image with this repo's files (patched with an AVB footer regeneration that
-  `patch-gsi.sh` now does; see Findings). Outgoing SMS and calls unchanged; incoming call test pending.
+  `patch-gsi.sh` now does; see Findings). Outgoing SMS and calls unchanged; incoming VoLTE calls pass with it (see Findings).
+- 2026-10-12: `patch-gsi.sh` replaces the GSI's AVB hashtree footer, so patched files survive DSU (#4).
+- 2026-10-12: `ims-caf` and `ims-caf-framework` static overlays: VoLTE comes up on the first boot after installing
+  the IMS app (#5).
+- 2026-10-12: Checklist on US Mobile's AT&T network (DSU): calls, SMS, MMS and data pass.
+- 2026-10-13: Checklist on US Mobile's T-Mobile network (DSU) and passkeys pass.
 - 2026-10-13: Module form (KernelSU / Magisk) and keylayouts in the public pack; US Mobile APN script, T-Mobile
   IPv4 gap documented.
 - 2026-10-14: Test checklist and full-flash procedure; full flash and rollback to stock LightOS tested.
