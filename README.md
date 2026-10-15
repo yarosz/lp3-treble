@@ -48,6 +48,7 @@ Never wipe the LP3 with `fastboot -w`: the phone then stops at "Can't load Andro
 | `overlays/carrierconfig` | Enables VoLTE for AT&T SIMs (310/280, 310/410); shows the network name (e.g. US Mobile) for SIMs identified as T-Mobile US |
 | `overlays/ims-caf`, `overlays/ims-caf-framework` | Brings up VoLTE on the first boot after you install the IMS app ([why](docs/ims-overlays.md)) |
 | `overlays/framework` | Turns on auto-brightness, with stock LightOS's curve |
+| `overlays/wfc` | Sets up Wi-Fi Calling as stock does, with Qualcomm's IWLAN service (the line must have Wi-Fi Calling turned on) |
 | `props/product.prop` | Sets display density 320 and NR/LTE/GSM/WCDMA as the default network mode |
 | `keylayout/` | Maps the scroll wheel, HOME and volume keys (as in vandamd/light-guide), and the shutter as a camera button |
 | `overlays/lineage-keys` | Shows LineageOS's Camera button settings (Settings > System > Buttons) |
@@ -65,8 +66,7 @@ rooted with KernelSU (as vandamd/light-guide's installer leaves it), the module 
 - LP3 keys (scroll wheel, shutter, HOME) and display size.
 - Install and clean uninstall, via Dynamic System Updates (DSU) and via full flash.
 
-Not in scope: Light's own Tools on the GSI, eSIM management, Wi-Fi Calling (an experimental overlay exists:
-`overlays-experimental/wfc`, built with `LP3_EXPERIMENTAL=1`), building a
+Not in scope: Light's own Tools on the GSI, eSIM management, building a
 kernel or any Android image. This repo ships only overlays, props and its own code, never vendor blobs or
 Light's proprietary files.
 

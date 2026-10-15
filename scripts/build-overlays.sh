@@ -27,6 +27,7 @@ fi
 out=$root/out/overlays
 mkdir -p "$out"
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+shopt -s nullglob  # overlays-experimental/ may be empty or absent
 dirs=("$root"/overlays/*/)
 [ "${LP3_EXPERIMENTAL:-}" != 1 ] || dirs+=("$root"/overlays-experimental/*/)
 for dir in "${dirs[@]}"; do

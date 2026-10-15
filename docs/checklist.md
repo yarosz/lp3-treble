@@ -168,13 +168,15 @@ failed `chcon` after this test; the binary is the tested one.
 | NFC | PASS | read an emulated NTAG213 tag; Android opened the tag's URL |
 | Bluetooth | PASS | found nearby devices; paired a Bluetooth LE device and Bluetooth earbuds |
 | Auto-brightness | PASS (`overlays/framework`) | stock LightOS's curve; covering the sensor (12 lux) dimmed the screen to 8 %, uncovering it (about 300 lux) brought it back to 100 % |
-| Wi-Fi Calling | FAIL, same as stock | with the experimental `overlays-experimental/wfc` the GSI matches stock LightOS (switch available, Qualcomm's IWLAN service bound), but in "Wi-Fi only" mode an outgoing call is refused ("Cellular network not available") on both the GSI and stock LightOS, so this line doesn't get Wi-Fi Calling either way |
+| Wi-Fi Calling | PASS (`overlays/wfc`) | 2026-10-14, full flash: preference "Wi-Fi only", IMS registered over WLAN; call in (features=8, Wi-Fi) and call out (features=12, Wi-Fi + HD audio). Stock LightOS gives the same result on this line. An earlier FAIL on both stock and the GSI was the line: Wi-Fi Calling (with an E911 address) has to be turned on in the carrier account first |
 | Bluetooth audio | PASS | Bluetooth earbuds: music (A2DP) and a headset call with audio both ways |
 
-Regression check with the experimental Wi-Fi Calling overlay installed (Qualcomm's IWLAN service picking the
-network for every data type), Wi-Fi Calling on, preference "Call over mobile network": VoLTE registered, call in
-(features=64), SMS in and out, mobile data validated. All PASS. With the preference set to "Wi-Fi only" on a line
-that has no Wi-Fi Calling, calls and texts are refused, which is what that setting does on stock LightOS too.
+Regression check with the Wi-Fi Calling overlay installed (Qualcomm's IWLAN service picking the network for every
+data type), Wi-Fi Calling on, preference "Call over mobile network": VoLTE registered, call in (features=64), SMS
+in and out, mobile data validated. All PASS, and again on 2026-10-14 after a full flash through the web installer
+(VoLTE call in 64 and out 68, SMS in with the screen off and out, data). With the preference set to "Wi-Fi only" on
+a line that has no Wi-Fi Calling, calls and texts are refused, which is what that setting does on stock LightOS
+too.
 
 ## Known issues
 
@@ -194,9 +196,9 @@ that has no Wi-Fi Calling, calls and texts are refused, which is what that setti
 - US Mobile on T-Mobile: on the GSI's default `fast.t-mobile.com` APN, IPv4 gets no replies (IPv6 works). Stock
   LightOS behaves the same on that APN and ships an IPv4 APN instead. `scripts/apn/set-apn.sh lightspeed`.
 - A SIM that is new to the GSI starts with mobile data off.
-- Wi-Fi Calling didn't work on the tested line (US Mobile, T-Mobile network), on stock LightOS or on the GSI.
-  An experimental overlay, off by default (`LP3_EXPERIMENTAL=1`), sets the GSI up the way stock is (Qualcomm's
-  IWLAN service); results on other carriers are welcome.
+- Wi-Fi Calling needs the line to have it: on US Mobile, turn it on (with an E911 address) in the account first.
+  Tested on US Mobile's T-Mobile network only; results on other carriers are welcome. The network name shown during
+  Wi-Fi Calling stays "T-Mobile" (see above).
 - The shutter opens the camera only after a long press, on release, and only with LineageOS's `camera_launch`
   setting on (README step 9; the module sets it). The first time, Android may ask which camera app to use.
 - In Aperture, a full shutter press takes the photo when you release it (Aperture's own key handling): the

@@ -7,7 +7,7 @@ Instructions for coding agents (and people) working in this repo. Read `README.m
 | Path | Contents |
 |---|---|
 | `overlays/<name>/` | One runtime resource overlay (RRO) each: `AndroidManifest.xml` + `res/`. Built by `scripts/build-overlays.sh` |
-| `overlays-experimental/` | Overlays built only with `LP3_EXPERIMENTAL=1` (for example `wfc`, Wi-Fi Calling) |
+| `overlays-experimental/` | Overlays built only with `LP3_EXPERIMENTAL=1` (none at the moment) |
 | `keylayout/` | Key layout files for the LP3's input devices |
 | `props/product.prop` | Props appended to the GSI's product `build.prop` |
 | `atel/` | `lp3-atel-ready` (Java, raw HIDL parcel), its init `.rc` and SELinux `.cil` ([README](atel/README.md)) |
