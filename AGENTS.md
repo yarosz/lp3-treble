@@ -67,3 +67,9 @@ Instructions for coding agents (and people) working in this repo. Read `README.m
   you verified. The flash and the rollback both wipe userdata. There is no public LP3 factory image.
 - Don't take a Light OTA on an unlocked or flashed phone: the dump would no longer match the firmware, and the
   rollback restores the partitions as they were at backup time.
+- **Never relock the bootloader.** Relocking to stock exists in principle: the "Restore LightOS" flow in
+  vandamd/light-guide puts the stock `boot`, `vbmeta` and `system` back, then runs `flashing lock` and checks for
+  green verified boot. But if anything is non-stock when you relock, the phone refuses to boot, and there is no
+  known recovery: no EDL (Qualcomm emergency download) loader exists for the LP3. Relocking has not been tested on
+  this project's phone. Vandam keeps his unlocked too, warning that "a future firmware update could prevent
+  unlocking it again if relocked", which is also why LightOS updates stay off while the bootloader is unlocked.
