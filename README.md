@@ -6,7 +6,7 @@ image. The stock vendor and kernel stay unchanged.
 
 First target: the unofficial LineageOS GSI by MisterZtr ([MisterZtr/LineageOS_gsi](https://github.com/MisterZtr/LineageOS_gsi)).
 
-**Status: early preview ([`v0.1.0-preview.1`](https://github.com/yarosz/lp3-treble/releases/tag/v0.1.0-preview.1)). You build the image yourself.** Progress is in
+**Status: early preview ([`v0.1.0-preview.2`](https://github.com/yarosz/lp3-treble/releases/tag/v0.1.0-preview.2)). You build the image yourself.** Progress is in
 [`LEDGER.md`](LEDGER.md).
 
 > Unaffiliated with Light. "Light Phone" is Light's trademark. This project is not endorsed by Light,
@@ -30,8 +30,9 @@ The tested path needs LightOS firmware `00WW_1_440000`.
 2. **Turn off LightOS updates** (`adb shell pm disable-user com.lightos.fota`) and take no update while the
    bootloader is unlocked.
 3. **Unlock the bootloader** with Vandam's tool, [root.noscroll.ing](https://root.noscroll.ing)
-   ([vandamd/light-guide](https://github.com/vandamd/light-guide)). Use it for the unlock only: its root and
-   LineageOS install options replace `boot`, `vbmeta` and `system`, which this guide expects to be stock.
+   ([vandamd/light-guide](https://github.com/vandamd/light-guide)). For the image path below, use it for the
+   unlock only: its root and LineageOS install options replace `boot`, `vbmeta` and `system`, which the image path
+   expects to be stock. If you already installed LineageOS with it, use the [module](docs/module.md) instead.
 4. **Try it through DSU first** ([build a test image](#build-a-test-image), below). The GSI boots from a
    separate image and LightOS stays installed: one reboot takes you back.
 5. **For daily use, flash it** in place of stock `system` ([full flash](docs/full-flash.md)). Before you flash,
@@ -59,16 +60,18 @@ module for a rooted GSI ([module](docs/module.md)). The patched image is the sim
 rooted with KernelSU (as vandamd/light-guide's installer leaves it), the module needs our
 [meta-overlayfs build](metamodule/README.md) for its overlays and keylayouts; Magisk hasn't been tested.
 
-## Scope of the first preview
+## Scope of the early previews
 
 - Calls (VoLTE), SMS, MMS and mobile data, tested per carrier.
+- Wi-Fi Calling, when the line has it turned on with the carrier (tested on US Mobile's T-Mobile network).
 - Fingerprint unlock and BiometricPrompt.
 - Passkeys through a third-party credential provider (`android.software.credentials`).
 - LP3 keys (scroll wheel, shutter, HOME) and display size.
 - Install and clean uninstall, via Dynamic System Updates (DSU) and via full flash.
 
-Not in scope: Light's own Tools on the GSI, eSIM management, building a
-kernel or any Android image. This repo ships only overlays, props and its own code, never vendor blobs or
+Not supported: Light's own Tools. They need LightOS's `com.lightos` service, which only runs with Light's
+platform signature, so they don't work on a GSI. Not in scope: eSIM management, building a kernel or any
+Android image. This repo ships only overlays, props and its own code, never vendor blobs or
 Light's proprietary files.
 
 ## Build a test image
