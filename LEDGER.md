@@ -17,8 +17,10 @@ haven't been scrubbed.
   Qualcomm's `vendor.qti.iwlan` (in /vendor) through a Qualcomm overlay in /product, which a GSI replaces;
   `overlays/wfc` restores that. It is on by default since 2026-10-14: once the tested line had Wi-Fi Calling turned
   on in the carrier account (it needs an E911 address), Wi-Fi calls in and out passed on stock LightOS and on the
-  GSI (full flash). Still open: other carriers, and AT&T's network. Side note: Qualcomm's `.qtidataservices` (CNE) crashed once on the GSI with
-  `IllegalArgumentException: NetworkCallback was not registered` in `DataCallAgent.tearDownDataCall`.
+  GSI (full flash). Still open: other carriers, AT&T's network, and the module form with `wfc`.
+- Qualcomm's `.qtidataservices` (CNE) crashed once on the GSI with the Wi-Fi Calling overlay installed
+  (`IllegalArgumentException: NetworkCallback was not registered` in `DataCallAgent.tearDownDataCall`). Not looked
+  for since; worth a logcat check in the next test with the overlay.
 - The module form (`docs/module.md`) was tested 2026-10-14 with KernelSU (ReSukiSU), with and without our
   meta-overlayfs build (`metamodule/`): with it, overlays and keylayouts are active. Still open on the module
   form: VoLTE calls, Magisk, and incoming SMS with the screen off (qcril accepting the call from root).

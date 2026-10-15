@@ -150,7 +150,7 @@ failed `chcon` after this test; the binary is the tested one.
 | Check | Result | Notes |
 |---|---|---|
 | Metamodule image mount | PASS | `modules.img` labelled `ksu_file` by the patched scripts; overlay mounted on `/system` |
-| Overlays | PASS | All five lp3-treble overlays enabled (`cmd overlay list`) |
+| Overlays | PASS | All five lp3-treble overlays enabled (`cmd overlay list`; before `overlays/wfc`, the sixth, became default) |
 | Keylayouts | PASS | `/system/usr/keylayout/gpio-keys.kl` and `Pixart_pat9126ja.kl` in use (`dumpsys input`) |
 | Props, `camera_launch`, SMS helper | PASS / PASS / Runs | As above |
 | Unpatched meta-overlayfs | FAIL | Image mount "I/O error": SELinux denies the loop device writes to `system_file` |
@@ -168,15 +168,30 @@ failed `chcon` after this test; the binary is the tested one.
 | NFC | PASS | read an emulated NTAG213 tag; Android opened the tag's URL |
 | Bluetooth | PASS | found nearby devices; paired a Bluetooth LE device and Bluetooth earbuds |
 | Auto-brightness | PASS (`overlays/framework`) | stock LightOS's curve; covering the sensor (12 lux) dimmed the screen to 8 %, uncovering it (about 300 lux) brought it back to 100 % |
-| Wi-Fi Calling | PASS (`overlays/wfc`) | 2026-10-14, full flash: preference "Wi-Fi only", IMS registered over WLAN; call in (features=8, Wi-Fi) and call out (features=12, Wi-Fi + HD audio). Stock LightOS gives the same result on this line. An earlier FAIL on both stock and the GSI was the line: Wi-Fi Calling (with an E911 address) has to be turned on in the carrier account first |
+| Wi-Fi Calling | FAIL, same as stock | the line didn't have Wi-Fi Calling yet (see the full-flash section below, where it passes once the line has it) |
 | Bluetooth audio | PASS | Bluetooth earbuds: music (A2DP) and a headset call with audio both ways |
 
 Regression check with the Wi-Fi Calling overlay installed (Qualcomm's IWLAN service picking the network for every
-data type), Wi-Fi Calling on, preference "Call over mobile network": VoLTE registered, call in (features=64), SMS
-in and out, mobile data validated. All PASS, and again on 2026-10-14 after a full flash through the web installer
-(VoLTE call in 64 and out 68, SMS in with the screen off and out, data). With the preference set to "Wi-Fi only" on
-a line that has no Wi-Fi Calling, calls and texts are refused, which is what that setting does on stock LightOS
-too.
+data type), on a line that did NOT have Wi-Fi Calling in its carrier account, Wi-Fi Calling switch on, preference
+"Call over mobile network": VoLTE registered, call in (features=64), SMS in and out, mobile data validated. All
+PASS. With the preference set to "Wi-Fi only" on a line that has no Wi-Fi Calling, calls and texts are refused,
+which is what that setting does on stock LightOS too. Not tested: the switch off.
+
+### Wi-Fi Calling, full flash, US Mobile on T-Mobile, 2026-10-14
+
+The line now has Wi-Fi Calling turned on in the carrier account (US Mobile asks for an E911 address). Installed by
+full flash (system image patched with the pack, including `overlays/wfc`).
+
+| Item | Result | Evidence |
+|---|---|---|
+| Wi-Fi Calling, stock LightOS (reference) | PASS | preference "Wi-Fi only", IMS registered over WLAN; call in features=8 (Wi-Fi), call out features=12 (Wi-Fi + HD audio) |
+| Wi-Fi Calling | PASS | same preference, IMS registered over WLAN; call in features=8, call out features=12 |
+| VoLTE calls (preference "Call over mobile network") | PASS | call in features=64, call out features=68 |
+| SMS | PASS | in with the screen off (dozing), out |
+| Mobile data | PASS | cellular validated, IPv4 ping (the IPv4 APN from `set-apn.sh lightspeed`) |
+
+Not tested with `overlays/wfc`: AT&T's network, the module form, other carriers, and the network name shown
+during a Wi-Fi call.
 
 ## Known issues
 
@@ -198,7 +213,9 @@ too.
 - A SIM that is new to the GSI starts with mobile data off.
 - Wi-Fi Calling needs the line to have it: on US Mobile, turn it on (with an E911 address) in the account first.
   Tested on US Mobile's T-Mobile network only; results on other carriers are welcome. The network name shown during
-  Wi-Fi Calling stays "T-Mobile" (see above).
+  Wi-Fi Calling is expected to stay "T-Mobile" (see above), not checked.
+- `overlays/wfc` is on by default but untested on AT&T's network and in the module form. It can't be turned off
+  on the phone; if data, calls or texts misbehave, build without it and report it.
 - The shutter opens the camera only after a long press, on release, and only with LineageOS's `camera_launch`
   setting on (README step 9; the module sets it). The first time, Android may ask which camera app to use.
 - In Aperture, a full shutter press takes the photo when you release it (Aperture's own key handling): the
