@@ -6,9 +6,10 @@ haven't been scrubbed.
 ## Now
 
 - Phase: P5 (checklist and early previews). Tested on the LP3 with US Mobile on both AT&T and T-Mobile
-  networks: calls, SMS, MMS, data, fingerprint, passkeys, keys, display; Wi-Fi Calling on the T-Mobile network;
+  networks: calls, SMS, MMS, data, fingerprint, passkeys, keys, display; Wi-Fi Calling on the T-Mobile network
+  (full flash);
   installed via DSU and via full flash, with a rollback to stock LightOS ([`docs/checklist.md`](docs/checklist.md)).
-- Early previews: `v0.1.0-preview.1` (2026-10-14) and `v0.1.0-preview.2` (pre-releases). Next: testers on
+- Early previews (pre-releases): `v0.1.0-preview.1` and `v0.1.0-preview.2`, both 2026-10-14. Next: testers on
   Verizon, physical SIMs and carriers other than US Mobile.
 
 ## Open items
@@ -19,8 +20,8 @@ haven't been scrubbed.
   on in the carrier account (it needs an E911 address), Wi-Fi calls in and out passed on stock LightOS and on the
   GSI (full flash). Still open: other carriers, AT&T's network, and the module form with `wfc`.
 - Qualcomm's `.qtidataservices` (CNE) crashed once on the GSI with the Wi-Fi Calling overlay installed
-  (`IllegalArgumentException: NetworkCallback was not registered` in `DataCallAgent.tearDownDataCall`). Not looked
-  for since; worth a logcat check in the next test with the overlay.
+  (`IllegalArgumentException: NetworkCallback was not registered` in `DataCallAgent.tearDownDataCall`). Not checked
+  for in the 2026-10-14 full-flash run; worth a logcat check in the next test with the overlay.
 - The module form (`docs/module.md`) was tested 2026-10-14 with KernelSU (ReSukiSU), with and without our
   meta-overlayfs build (`metamodule/`): with it, overlays and keylayouts are active. Still open on the module
   form: VoLTE calls, Magisk, and incoming SMS with the screen off (qcril accepting the call from root).
@@ -33,9 +34,9 @@ haven't been scrubbed.
   the IPv4 APN itself.
 - The IMS static overlays were confirmed on single fresh-install runs on one AT&T-network SIM; confirm over more
   fresh installs and on other carriers.
-- `scripts/container/patch.sh` refuses to append a `ro.*` key already in the target `build.prop`, citing "init keeps the first
-  value". Init most likely lets a later value win (product props do override vendor ones here); verify on a device
-  and relax or reword the check.
+- `scripts/container/patch.sh` refuses to append a `ro.*` key already in the target `build.prop`, citing "init
+  keeps the first value". Init most likely lets a later value win (product props do override vendor ones here);
+  verify on a device and relax or reword the check.
 - More AT&T network codes (Cricket 310/150, FirstNet 313/100) for the CarrierConfig overlay need testers
   with those SIMs.
 - `test-patch-gsi.sh` has no seed with an FEC footer (avbtool needs an external `fec` binary that Alpine doesn't
@@ -50,6 +51,9 @@ haven't been scrubbed.
 - Qualcomm IMS (`org.codeaurora.ims` and friends) lives in `/system_ext`, which a GSI replaces. VoLTE on the GSI
   uses phh's Qualcomm IMS app, which the user installs from phh's Treble settings. This repo never ships it.
 - The MisterZtr LineageOS 23.2 GSI already declares `android.software.credentials`.
+- LightOS Tools are clients of LightOS's own `com.lightos` service (a Tool's `lighttool.toml` names it as
+  `serverPackage`), which runs as a system app signed with Light's key and is part of the system a GSI replaces.
+  So Tools don't run on the GSI.
 - Its EXT4 image is raw ext4 with almost no free space or inodes, so patching grows it with `resize2fs` first.
 - The image ends in an AVB hashtree footer with FEC (2 roots). DSU sets up dm-verity with FEC from it, so
   edited blocks were silently corrected back to stock at boot. `patch-gsi.sh` now replaces the footer (no FEC,
@@ -58,7 +62,8 @@ haven't been scrubbed.
 - On the GSI, incoming SMS were lost whenever the screen was off: the Qualcomm RIL holds them until it is told
   the telephony UI is ready, a signal stock firmware sends from a `/system_ext` app. `lp3-atel-ready` sends it
   (`atel/README.md`). Incoming VoLTE calls still work with it (answered, call log VoLTE). The same fix was merged
-  upstream in TrebleDroid (device_phh_treble#88), so future TrebleDroid-based GSIs include it.
+  upstream in TrebleDroid (device_phh_treble#88): GSIs built from device_phh_treble after that merge should include
+  it. `lp3-atel-ready` is still needed on the MisterZtr 23.2 build tested here.
 
 - IMS voice came up off on the first boots after a fresh install (calls fell back to circuit-switched and AT&T
   rejected them), once with the Qualcomm IMS app not bound at all. Cause: phh's overlays for the device VoLTE flag
@@ -77,7 +82,7 @@ haven't been scrubbed.
 | P2 | Bootloader unlock; first DSU boot of a patched GSI image |
 | P3 | Overlays and props: keys, display, fingerprint, credentials feature |
 | P4 | IMS and carrier configuration |
-| P5 | Test checklist, known issues, early preview |
+| P5 | Test checklist, known issues, early previews |
 
 ## Log
 
@@ -85,13 +90,15 @@ haven't been scrubbed.
 - 2026-10-11: Offline image patcher (`patch-gsi.sh`, `pack-dsu.sh`) and self-test added; self-test passes on a synthetic image. Not yet run on the real GSI.
 - 2026-10-12: CarrierConfig overlay (VoLTE on AT&T SIMs): calls both ways and outgoing SMS work in the GSI.
 - 2026-10-12: `lp3-atel-ready` (init service, own SELinux domain): incoming SMS arrive with the screen off and in
-  deep doze, on an enforcing image with this repo's files (patched by a private patcher build that regenerates
-  the AVB footer; see Open items). Outgoing SMS and calls unchanged; incoming call test pending.
+  deep doze, on an enforcing image with this repo's files (patched with an AVB footer regeneration that
+  `patch-gsi.sh` now does; see Findings). Outgoing SMS and calls unchanged; incoming call test pending.
 - 2026-10-13: Module form (KernelSU / Magisk) and keylayouts in the public pack; US Mobile APN script, T-Mobile
   IPv4 gap documented.
-- 2026-10-14: Test checklist and full-flash procedure; full flash and rollback to stock LightOS tested. Hardware
-  sweep (cameras, GPS, NFC, Bluetooth and more) passes; auto-brightness overlay. `v0.1.0-preview.1` released.
+- 2026-10-14: Test checklist and full-flash procedure; full flash and rollback to stock LightOS tested.
+  `v0.1.0-preview.1` released.
+- 2026-10-14: Hardware sweep (cameras, GPS, NFC, Bluetooth and more) passes; auto-brightness overlay;
+  experimental Wi-Fi Calling overlay.
 - 2026-10-14: Shutter as a camera button; Settings > Buttons crash fixed; carrier name for SIMs identified as
   T-Mobile US; meta-overlayfs metamodule build, module tested on KernelSU with it.
 - 2026-10-14: Wi-Fi Calling works once the line has it: calls in and out on stock LightOS and on the GSI (full
-  flash); `overlays/wfc` on by default.
+  flash); `overlays/wfc` on by default. `v0.1.0-preview.2` released.

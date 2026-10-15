@@ -32,7 +32,9 @@ The tested path needs LightOS firmware `00WW_1_440000`.
 3. **Unlock the bootloader** with Vandam's tool, [root.noscroll.ing](https://root.noscroll.ing)
    ([vandamd/light-guide](https://github.com/vandamd/light-guide)). For the image path below, use it for the
    unlock only: its root and LineageOS install options replace `boot`, `vbmeta` and `system`, which the image path
-   expects to be stock. If you already installed LineageOS with it, use the [module](docs/module.md) instead.
+   expects to be stock. If you already installed LineageOS with it and rooted it with KernelSU, the
+   [module](docs/module.md) is the alternative and replaces steps 4 and 5: it needs our metamodule and is less
+   tested than the image (see the module's status).
 4. **Try it through DSU first** ([build a test image](#build-a-test-image), below). The GSI boots from a
    separate image and LightOS stays installed: one reboot takes you back.
 5. **For daily use, flash it** in place of stock `system` ([full flash](docs/full-flash.md)). Before you flash,
@@ -56,21 +58,24 @@ Never wipe the LP3 with `fastboot -w`: the phone then stops at "Can't load Andro
 | `overlays/lineage-keys` | Shows LineageOS's Camera button settings (Settings > System > Buttons) |
 
 The pack comes in two forms built from the same sources: a patched GSI image (below) and a KernelSU / Magisk
-module for a rooted GSI ([module](docs/module.md)). The patched image is the simplest form. On a GSI
+module for a rooted GSI ([module](docs/module.md)). Releases attach a prebuilt module zip and our metamodule zip.
+The patched image is the simplest form. On a GSI
 rooted with KernelSU (as vandamd/light-guide's installer leaves it), the module needs our
 [meta-overlayfs build](metamodule/README.md) for its overlays and keylayouts; Magisk hasn't been tested.
 
 ## Scope of the early previews
 
 - Calls (VoLTE), SMS, MMS and mobile data, tested per carrier.
-- Wi-Fi Calling, when the line has it turned on with the carrier (tested on US Mobile's T-Mobile network).
+- Wi-Fi Calling, when the line has it turned on with the carrier (tested by full flash on US Mobile's T-Mobile
+  network; other carriers, AT&T's network and the module form untested).
 - Fingerprint unlock and BiometricPrompt.
 - Passkeys through a third-party credential provider (`android.software.credentials`).
 - LP3 keys (scroll wheel, shutter, HOME) and display size.
 - Install and clean uninstall, via Dynamic System Updates (DSU) and via full flash.
 
-Not supported: Light's own Tools. They need LightOS's `com.lightos` service, which only runs with Light's
-platform signature, so they don't work on a GSI. Not in scope: eSIM management, building a kernel or any
+Not supported: LightOS Tools (Light's own and other developers'). Every Tool is a client of LightOS's
+`com.lightos` service; a GSI replaces LightOS's system, and that service can't be added back because it runs as
+a system app signed with Light's key. Not in scope: eSIM management, building a kernel or any
 Android image. This repo ships only overlays, props and its own code, never vendor blobs or
 Light's proprietary files.
 

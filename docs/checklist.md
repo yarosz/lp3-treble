@@ -1,6 +1,6 @@
 # Test checklist
 
-Results for the first preview, and the checklist to run on your own carrier. Device: Light Phone III (TLP301),
+Results for the early previews, and the checklist to run on your own carrier. Device: Light Phone III (TLP301),
 firmware `00WW_1_440000`, bootloader unlocked. GSI: MisterZtr's LineageOS 23.2 (VANILLA, EXT4) with the full
 pack patched in by `scripts/patch-gsi.sh`. IMS: phh's Qualcomm IMS app, installed by the user (the pack does not
 ship it).
