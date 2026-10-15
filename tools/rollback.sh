@@ -49,6 +49,11 @@ flash)
   fastboot -s "$S" erase userdata || die "userdata erase failed"
   fastboot -s "$S" erase metadata || die "metadata erase failed"
   fastboot -s "$S" reboot
-  echo "ROLLED BACK; booting LightOS";;
+  echo "ROLLED BACK; booting LightOS"
+  echo "LightOS setup follows with updates turned back on: never take an offered update. Skip Wi-Fi (airplane mode"
+  echo "if a SIM has data), get adb back (*7412369#, Settings > Debug > Android Dev Mode, Allow), then run:"
+  echo "  adb -s $S shell pm disable-user com.lightos.fota"
+  echo "and connect Wi-Fi only after that. Steps: README.md, 'After a wipe: LightOS setup'."
+  ;;
 *) die "unknown step";;
 esac

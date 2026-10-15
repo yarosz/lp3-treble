@@ -6,7 +6,7 @@ image. The stock vendor and kernel stay unchanged.
 
 First target: the unofficial LineageOS GSI by MisterZtr ([MisterZtr/LineageOS_gsi](https://github.com/MisterZtr/LineageOS_gsi)).
 
-**Status: early preview ([`v0.1.0-preview.1`](https://github.com/yarosz/lp3-treble/releases/tag/v0.1.0-preview.1)). You build the image yourself.** Progress is in
+**Status: early preview ([`v0.1.0-preview.2`](https://github.com/yarosz/lp3-treble/releases/tag/v0.1.0-preview.2)). You build the image yourself.** Progress is in
 [`LEDGER.md`](LEDGER.md).
 
 > Unaffiliated with Light. "Light Phone" is Light's trademark. This project is not endorsed by Light,
@@ -27,19 +27,36 @@ been tested on the T-Mobile network only.
 The tested path needs LightOS firmware `00WW_1_440000`.
 
 1. **Back up your data** (photos, messages, anything on the phone): unlocking wipes it.
-2. **Turn off LightOS updates** (`adb shell pm disable-user com.lightos.fota`) and take no update while the
-   bootloader is unlocked.
-3. **Unlock the bootloader** with Vandam's tool, [root.noscroll.ing](https://root.noscroll.ing)
-   ([vandamd/light-guide](https://github.com/vandamd/light-guide)). Use it for the unlock only: its root and
-   LineageOS install options replace `boot`, `vbmeta` and `system`, which this guide expects to be stock.
+2. **Turn off LightOS updates** (`adb shell pm disable-user com.lightos.fota`; for adb, dial `*7412369#` in the
+   Phone tool, turn on Settings > Debug > Android Dev Mode and accept "Allow USB debugging"). An update moves the
+   phone off the tested firmware, and none may be taken while the bootloader is unlocked.
+3. **Unlock the bootloader** (it wipes the phone: then follow [after a wipe](#after-a-wipe-lightos-setup)) with
+   Vandam's tool, [root.noscroll.ing](https://root.noscroll.ing)
+   ([vandamd/light-guide](https://github.com/vandamd/light-guide)). For the image path below, use it for the
+   unlock only: its root and LineageOS install options replace `boot`, `vbmeta` and `system`, which the image path
+   expects to be stock. If you already installed LineageOS with it and rooted it with KernelSU, the
+   [module](docs/module.md) is the alternative and replaces steps 4 and 5: it needs our metamodule and is less
+   tested than the image (see the module's status).
 4. **Try it through DSU first** ([build a test image](#build-a-test-image), below). The GSI boots from a
    separate image and LightOS stays installed: one reboot takes you back.
 5. **For daily use, flash it** in place of stock `system` ([full flash](docs/full-flash.md)). Before you flash,
-   dump `super` and `vbmeta_a` (this needs a one-boot root image). That dump is the only way back from a full
+   dump `super`, `vbmeta_a` and `boot_a` (this needs a one-boot root image). That dump is the only way back from a full
    flash to (unlocked) LightOS. The flash and the rollback both wipe userdata, and only slot `a` was tested.
 6. **Report what works** on your carrier with the [test checklist](docs/checklist.md).
 
 Never wipe the LP3 with `fastboot -w`: the phone then stops at "Can't load Android system".
+
+### After a wipe: LightOS setup
+
+Every userdata wipe (the unlock, a rollback to stock, a factory reset) turns LightOS updates back on, and LightOS
+setup may offer a software update. Never take it on an unlocked phone. In setup:
+
+1. Decline any update and skip Wi-Fi. If the phone has a SIM or eSIM with data (eSIM profiles survive the wipe),
+   turn on airplane mode too, so nothing downloads over mobile data.
+2. For adb: dial `*7412369#` in the Phone tool (it reveals Settings > Debug), turn on Settings > Debug > Android Dev Mode, and accept the "Allow USB debugging" prompt.
+3. Turn updates off and check it: `adb shell pm disable-user com.lightos.fota`, then
+   `adb shell pm list packages -d | grep fota` must list it.
+4. Only then connect Wi-Fi (for wireless adb or Wi-Fi Calling, for example) and turn airplane mode off.
 
 ## What's in the pack
 
@@ -55,20 +72,25 @@ Never wipe the LP3 with `fastboot -w`: the phone then stops at "Can't load Andro
 | `overlays/lineage-keys` | Shows LineageOS's Camera button settings (Settings > System > Buttons) |
 
 The pack comes in two forms built from the same sources: a patched GSI image (below) and a KernelSU / Magisk
-module for a rooted GSI ([module](docs/module.md)). The patched image is the simplest form. On a GSI
+module for a rooted GSI ([module](docs/module.md)). Releases attach a prebuilt module zip and our metamodule zip.
+The patched image is the simplest form. On a GSI
 rooted with KernelSU (as vandamd/light-guide's installer leaves it), the module needs our
 [meta-overlayfs build](metamodule/README.md) for its overlays and keylayouts; Magisk hasn't been tested.
 
-## Scope of the first preview
+## Scope of the early previews
 
 - Calls (VoLTE), SMS, MMS and mobile data, tested per carrier.
+- Wi-Fi Calling, when the line has it turned on with the carrier (tested by full flash on US Mobile's T-Mobile
+  network; other carriers, AT&T's network and the module form untested).
 - Fingerprint unlock and BiometricPrompt.
 - Passkeys through a third-party credential provider (`android.software.credentials`).
 - LP3 keys (scroll wheel, shutter, HOME) and display size.
 - Install and clean uninstall, via Dynamic System Updates (DSU) and via full flash.
 
-Not in scope: Light's own Tools on the GSI, eSIM management, building a
-kernel or any Android image. This repo ships only overlays, props and its own code, never vendor blobs or
+Not supported: LightOS Tools (Light's own and other developers'). Every Tool is a client of LightOS's
+`com.lightos` service; a GSI replaces LightOS's system, and that service can't be added back because it runs as
+a system app signed with Light's key. Not in scope: eSIM management, building a kernel or any
+Android image. This repo ships only overlays, props and its own code, never vendor blobs or
 Light's proprietary files.
 
 ## Build a test image
@@ -114,7 +136,13 @@ The pack was tested on MisterZtr's LineageOS 23.2 GSI. If you use another GSI bu
    adb reboot
    ```
 
-6. In the GSI, install the Qualcomm IMS app from phh's Treble settings (IMS section).
+6. Install phh's Qualcomm IMS app in the GSI with adb, the route tested here: download phh's `ims-caf` APK from
+   treble.phh.me (the tested file was `ims-caf-u-resigned.apk`, sha256
+   `09a72f205255a5d86b596373a4c85797decad9067beaaf7cee8df1a03d952fe8`) and run `adb install <apk>`. Or run
+   `tools/gsi-ims-setup.sh <apk> <serial>` ([tools](tools/README.md)), which checks the sha256 when
+   `IMS_APK_SHA256` is set and also allows LTE/NR on SIM slot 1; our test runs used it, and whether a plain
+   `adb install` needs that step is untested. phh's Treble settings app also offers an install in its IMS section
+   (not tested on the LP3).
 7. Reboot to LightOS, then repeat step 5. VoLTE is available from this boot on.
 8. In the GSI, turn on mobile data (it starts off for a SIM new to the GSI). On US Mobile, also set the APN:
    `scripts/apn/set-apn.sh darkstar` or `lightspeed` ([why](docs/apn.md)).

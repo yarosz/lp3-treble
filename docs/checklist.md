@@ -1,6 +1,6 @@
 # Test checklist
 
-Results for the first preview, and the checklist to run on your own carrier. Device: Light Phone III (TLP301),
+Results for the early previews, and the checklist to run on your own carrier. Device: Light Phone III (TLP301),
 firmware `00WW_1_440000`, bootloader unlocked. GSI: MisterZtr's LineageOS 23.2 (VANILLA, EXT4) with the full
 pack patched in by `scripts/patch-gsi.sh`. IMS: phh's Qualcomm IMS app, installed by the user (the pack does not
 ship it).
@@ -9,8 +9,8 @@ ship it).
 
 1. Build and boot a patched image through DSU (README, "Build a test image"), or flash it
    ([full flash](full-flash.md)).
-2. In the GSI, install the IMS app from phh's Treble settings (IMS section) and reboot once (in DSU: reboot to
-   LightOS, then boot the GSI again).
+2. In the GSI, install phh's Qualcomm IMS app as in the README's "Build a test image" step 6 (the route tested here), and reboot
+   once (in DSU: reboot to LightOS, then boot the GSI again).
 3. Turn on mobile data. If your carrier needs a specific APN, set it ([APNs](apn.md)).
 4. Work through each row of the table below. Use a second phone for incoming calls and texts: some networks
    don't loop back texts sent to your own number.
