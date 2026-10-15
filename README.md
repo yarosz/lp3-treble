@@ -28,7 +28,9 @@ The tested path needs LightOS firmware `00WW_1_440000`.
 
 1. **Back up your data** (photos, messages, anything on the phone): unlocking wipes it.
 2. **Turn off LightOS updates** (`adb shell pm disable-user com.lightos.fota`) and take no update while the
-   bootloader is unlocked.
+   bootloader is unlocked. Every wipe (the unlock, a rollback, a factory reset) turns updates back on, and LightOS
+   setup may offer an update: decline it. In setup after a wipe, skip Wi-Fi, turn on Developer Mode (dial
+   `*7412369#` in the Phone tool), turn updates off again, and only then connect Wi-Fi.
 3. **Unlock the bootloader** with Vandam's tool, [root.noscroll.ing](https://root.noscroll.ing)
    ([vandamd/light-guide](https://github.com/vandamd/light-guide)). For the image path below, use it for the
    unlock only: its root and LineageOS install options replace `boot`, `vbmeta` and `system`, which the image path

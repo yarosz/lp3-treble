@@ -66,7 +66,9 @@ Instructions for coding agents (and people) working in this repo. Read `README.m
   delete logical partitions), and only with a dump of `super`, `vbmeta_a` and `boot_a` whose sizes and sha256
   you verified. The flash and the rollback both wipe userdata. There is no public LP3 factory image.
 - Don't take a Light OTA on an unlocked or flashed phone: the dump would no longer match the firmware, and the
-  rollback restores the partitions as they were at backup time.
+  rollback restores the partitions as they were at backup time. Every userdata wipe (unlock, rollback, factory
+  reset) turns LightOS updates back on, and LightOS setup may offer an update: never accept it when driving setup.
+  Skip Wi-Fi in setup, turn updates off (`pm disable-user com.lightos.fota`), then connect Wi-Fi.
 - **Never relock the bootloader.** vandamd/light-guide implements a relock: its "Restore LightOS" flow writes back
   stock `boot` and `vbmeta` (and `system` when coming from LineageOS), checks every pinned partition against stock
   hashes, erases `avb_custom_key`, then runs `flashing lock` and checks for green verified boot. But if a verified

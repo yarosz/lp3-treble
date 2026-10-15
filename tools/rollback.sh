@@ -49,6 +49,9 @@ flash)
   fastboot -s "$S" erase userdata || die "userdata erase failed"
   fastboot -s "$S" erase metadata || die "metadata erase failed"
   fastboot -s "$S" reboot
-  echo "ROLLED BACK; booting LightOS";;
+  echo "ROLLED BACK; booting LightOS"
+  echo "LightOS setup follows, with updates turned back on by the wipe: decline any update it offers. Skip Wi-Fi,"
+  echo "turn on Developer Mode (*7412369# in the Phone tool), run: adb shell pm disable-user com.lightos.fota,"
+  echo "then connect Wi-Fi.";;
 *) die "unknown step";;
 esac
