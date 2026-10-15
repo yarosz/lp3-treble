@@ -67,9 +67,12 @@ Instructions for coding agents (and people) working in this repo. Read `README.m
   you verified. The flash and the rollback both wipe userdata. There is no public LP3 factory image.
 - Don't take a Light OTA on an unlocked or flashed phone: the dump would no longer match the firmware, and the
   rollback restores the partitions as they were at backup time.
-- **Never relock the bootloader.** Relocking to stock exists in principle: the "Restore LightOS" flow in
-  vandamd/light-guide puts the stock `boot`, `vbmeta` and `system` back, then runs `flashing lock` and checks for
-  green verified boot. But if anything is non-stock when you relock, the phone refuses to boot, and there is no
-  known recovery: no EDL (Qualcomm emergency download) loader exists for the LP3. Relocking has not been tested on
-  this project's phone. Vandam keeps his unlocked too, warning that "a future firmware update could prevent
-  unlocking it again if relocked", which is also why LightOS updates stay off while the bootloader is unlocked.
+- **Never relock the bootloader.** vandamd/light-guide implements a relock: its "Restore LightOS" flow writes back
+  stock `boot` and `vbmeta` (and `system` when coming from LineageOS), checks every pinned partition against stock
+  hashes, erases `avb_custom_key`, then runs `flashing lock` and checks for green verified boot. But if a verified
+  partition doesn't match stock when you relock, expect the phone to refuse to boot (standard Android Verified
+  Boot behaviour), and no public EDL (Qualcomm emergency download) loader is known for the LP3 to recover it.
+  Relocking has not been tested on this project's phone, and Vandam's page says the flow "still needs end-to-end
+  testing". He keeps his own phone unlocked: "a future firmware update could prevent unlocking it again if
+  relocked", so don't relock to take a Light update either. To go back to stock, use the rollback in
+  [`docs/full-flash.md`](docs/full-flash.md), which leaves the bootloader unlocked.
