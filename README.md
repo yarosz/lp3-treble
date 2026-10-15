@@ -122,9 +122,13 @@ The pack was tested on MisterZtr's LineageOS 23.2 GSI. If you use another GSI bu
    adb reboot
    ```
 
-6. Install phh's Qualcomm IMS app in the GSI: download phh's `ims-caf` APK from treble.phh.me and run
-   `adb install <apk>`, or `tools/gsi-ims-setup.sh <apk>`, which also allows LTE/NR on the SIM. That is the route
-   tested here; phh's Treble settings app also offers an install in its IMS section (not tested on the LP3).
+6. Install phh's Qualcomm IMS app in the GSI with adb, the route tested here: download phh's `ims-caf` APK from
+   treble.phh.me (the tested file was `ims-caf-u-resigned.apk`, sha256
+   `09a72f205255a5d86b596373a4c85797decad9067beaaf7cee8df1a03d952fe8`) and run `adb install <apk>`. Or run
+   `tools/gsi-ims-setup.sh <apk> <serial>` ([tools](tools/README.md)), which checks the sha256 when
+   `IMS_APK_SHA256` is set and also allows LTE/NR on SIM slot 1; our test runs used it, and whether a plain
+   `adb install` needs that step is untested. phh's Treble settings app also offers an install in its IMS section
+   (not tested on the LP3).
 7. Reboot to LightOS, then repeat step 5. VoLTE is available from this boot on.
 8. In the GSI, turn on mobile data (it starts off for a SIM new to the GSI). On US Mobile, also set the APN:
    `scripts/apn/set-apn.sh darkstar` or `lightspeed` ([why](docs/apn.md)).

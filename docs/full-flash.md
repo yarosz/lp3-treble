@@ -92,7 +92,7 @@ snapshot status `none` they are not in use.
    vendor settings, so it should do the same. If you see that screen anyway, choose "Factory data reset".
 
 The GSI's `skip_mount.cfg` skips the stock `product` and `system_ext` partitions, so nothing else needs
-changing. In the GSI, install the IMS app from phh's Treble settings (IMS section), then reboot once. Turn on
+changing. In the GSI, install phh's Qualcomm IMS app as in the README's "Build a test image" step 6, then reboot once. Turn on
 mobile data, and set the APN if your carrier needs it ([APNs](apn.md)).
 
 ## Roll back to stock LightOS

@@ -9,8 +9,8 @@ ship it).
 
 1. Build and boot a patched image through DSU (README, "Build a test image"), or flash it
    ([full flash](full-flash.md)).
-2. In the GSI, install the IMS app from phh's Treble settings (IMS section) and reboot once (in DSU: reboot to
-   LightOS, then boot the GSI again).
+2. In the GSI, install phh's Qualcomm IMS app as in the README's "Build a test image" step 6 (the route tested here), and reboot
+   once (in DSU: reboot to LightOS, then boot the GSI again).
 3. Turn on mobile data. If your carrier needs a specific APN, set it ([APNs](apn.md)).
 4. Work through each row of the table below. Use a second phone for incoming calls and texts: some networks
    don't loop back texts sent to your own number.

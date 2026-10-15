@@ -49,7 +49,7 @@ haven't been scrubbed.
 - DSU is present on stock LightOS: `gsi_tool`, the `gsid` service and the DSU installer app. An unsigned GSI
   can boot in DSU only after a bootloader unlock. DSU boots the stock kernel.
 - Qualcomm IMS (`org.codeaurora.ims` and friends) lives in `/system_ext`, which a GSI replaces. VoLTE on the GSI
-  uses phh's Qualcomm IMS app, which the user installs from phh's Treble settings. This repo never ships it.
+  uses phh's Qualcomm IMS app, which the user installs (tested by `adb install`). This repo never ships it.
 - The MisterZtr LineageOS 23.2 GSI already declares `android.software.credentials`.
 - LightOS Tools are clients of LightOS's own `com.lightos` service (a Tool's `lighttool.toml` names it as
   `serverPackage`), which runs as a system app signed with Light's key and is part of the system a GSI replaces.
@@ -89,14 +89,15 @@ haven't been scrubbed.
 - 2026-10-11: Repo created. P0 read-only checks and research done.
 - 2026-10-11: Offline image patcher (`patch-gsi.sh`, `pack-dsu.sh`) and self-test added; self-test passes on a synthetic image. Not yet run on the real GSI.
 - 2026-10-12: CarrierConfig overlay (VoLTE on AT&T SIMs): calls both ways and outgoing SMS work in the GSI.
-- 2026-10-12: `lp3-atel-ready` (init service, own SELinux domain): incoming SMS arrive with the screen off and in
-  deep doze, on an enforcing image with this repo's files (patched with an AVB footer regeneration that
-  `patch-gsi.sh` now does; see Findings). Outgoing SMS and calls unchanged; incoming VoLTE calls pass with it (see Findings).
 - 2026-10-12: `patch-gsi.sh` replaces the GSI's AVB hashtree footer, so patched files survive DSU (#4).
+- 2026-10-12: `lp3-atel-ready` (init service, own SELinux domain): incoming SMS arrive with the screen off and in
+  deep doze, on an enforcing image with this repo's files. Outgoing SMS and calls unchanged; incoming VoLTE calls
+  pass with it (see Findings).
 - 2026-10-12: `ims-caf` and `ims-caf-framework` static overlays: VoLTE comes up on the first boot after installing
   the IMS app (#5).
-- 2026-10-12: Checklist on US Mobile's AT&T network (DSU): calls, SMS, MMS and data pass.
-- 2026-10-13: Checklist on US Mobile's T-Mobile network (DSU) and passkeys pass.
+- 2026-10-12: Checklist on US Mobile's AT&T network (DSU): calls, SMS and MMS pass; data passes after setting the
+  carrier APN.
+- 2026-10-13: Checklist on US Mobile's T-Mobile network (DSU): calls, SMS, MMS and data pass. Passkeys pass (DSU).
 - 2026-10-13: Module form (KernelSU / Magisk) and keylayouts in the public pack; US Mobile APN script, T-Mobile
   IPv4 gap documented.
 - 2026-10-14: Test checklist and full-flash procedure; full flash and rollback to stock LightOS tested.
